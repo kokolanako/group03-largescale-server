@@ -1,0 +1,17 @@
+target/
+
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### Eclipse ###
+.project
+.classpath
+.settings
+spartanizer.xml
+.eclipse-pmd
+.checkstyle
+.externalToolBuilders
