@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>largescale-project</groupId>
-    <artifactId>group03</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>ls.project</groupId>
+    <artifactId>server</artifactId>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -17,9 +17,9 @@
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <maven-compiler.version>3.8.1</maven-compiler.version>
         <mvn-surefire.version>2.22.1</mvn-surefire.version>
-        <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
 
         <lombok.version>1.18.10</lombok.version>
+
 
         <!--        <junit-jupiter.version>5.5.2</junit-jupiter.version>-->
 
@@ -33,6 +33,8 @@
     <!--    <dependencyManagement>-->
     <!-- if in dependency managenement no need for version, it will be inherited from parent-->
     <dependencies>
+
+
 
 
         <!-- JUnit 5 jupiter-->
@@ -50,13 +52,23 @@
         </dependency>
 
 
+
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
         </dependency>
 
+
+
+        <dependency>
+            <groupId>org.javatuples</groupId>
+            <artifactId>javatuples</artifactId>
+            <version>1.2</version>
+        </dependency>
     </dependencies>
+
     <build>
         <!--        <pluginManagement>-->
         <plugins>
@@ -66,7 +78,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler.version}</version>
                 <configuration>
-<!--                    <compilerVersion>11</compilerVersion>-->
+                    <!--                    <compilerVersion>11</compilerVersion>-->
                     <source>11</source>
                     <target>11</target>
                 </configuration>
@@ -76,6 +88,51 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${mvn-surefire.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>ApplicationStarter</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>ApplicationStarter</mainClass>
+                            <classpathPrefix>dependency-jars/</classpathPrefix>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.5.1</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>
+                                ${project.build.directory}/dependency-jars/
+                            </outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
         <!--        </pluginManagement>-->
