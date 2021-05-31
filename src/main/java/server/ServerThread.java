@@ -43,7 +43,13 @@ public class ServerThread extends Thread {
     }
 
     private void deregister() {
-        this.distributor.deregister(this.iD);
+        if(this.lastName!=null && this.firstName!=null){
+            this.distributor.deregister(this.lastName,this.firstName);
+
+        }else{
+
+            this.distributor.deregister(this.iD);
+        }
     }
 
     @Override
