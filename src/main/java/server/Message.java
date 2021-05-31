@@ -12,7 +12,7 @@ public class Message implements Serializable {
     private static final long serialVersionUID = 7829136421241571165L;
     @Setter
     @Getter
-    private String TYPE;  //for client: REGISTER, MESSAGE // for server: SERVER_RESPONSE, OK, ERROR
+    private String TYPE;  //for client: REGISTER, MESSAGE // for server: CLIENT_RESPONSE, OK, ERROR
     @Setter
     @Getter
     private int id;

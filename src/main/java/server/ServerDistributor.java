@@ -51,7 +51,9 @@ public class ServerDistributor {
             }
         }
     }
-
+    public void register(ServerThread client) {
+       this.clients.add(client);
+    }
     public String retrieve(int id) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getId() == id) {

@@ -78,10 +78,11 @@ public class ServerThread extends Thread {
     private void readObjectAndTakeAction(Message msg) {
         if (msg.getTYPE() == "REGISTER") {
             System.out.println("Server registered " + msg.getId());
-            this.register(msg.getId(), msg.getLastName(), msg.getFirstName(), msg.getPublicKey());
             if (this.distributor.alreadyExists(msg.getId(), msg.getLastName(), msg.getFirstName())) {
                 this.sendMessageToClient("ERROR", "Identical client already exists");
             } else {
+                this.register(msg.getId(), msg.getLastName(), msg.getFirstName(), msg.getPublicKey());
+                this.distributor.register(this);
                 this.sendMessageToClient("OK", null); //else ERROR +msg
 
             }
