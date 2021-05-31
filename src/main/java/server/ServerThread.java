@@ -9,7 +9,7 @@ public class ServerThread extends Thread {
     private Socket client;
     private ServerDistributor distributor;
     @Getter
-    private int id;
+    private int iD;
     @Getter
     private String firstName;
     @Getter
@@ -43,7 +43,7 @@ public class ServerThread extends Thread {
     }
 
     private void deregister() {
-        this.distributor.deregister(this.id);
+        this.distributor.deregister(this.iD);
     }
 
     @Override
@@ -114,7 +114,7 @@ public class ServerThread extends Thread {
     }
 
     public void register(int id, String lastName, String firstName, String publicKey) {
-        this.id = id;
+        this.iD = id;
         this.lastName = lastName;
         this.firstName = firstName;
         this.publicKey = publicKey;

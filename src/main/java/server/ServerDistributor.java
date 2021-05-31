@@ -43,7 +43,7 @@ public class ServerDistributor {
 
     public void deregister(int id) {
         for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getId() == id) {
+            if (this.clients.get(i).getID() == id) {
                 this.clients.remove(i);
             }
         }
@@ -53,7 +53,7 @@ public class ServerDistributor {
     }
     public synchronized String retrieve(int id) {
         for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getId() == id) {
+            if (this.clients.get(i).getID() == id) {
                 return this.clients.get(i).getPublicKey();
             }
         }
@@ -71,7 +71,7 @@ public class ServerDistributor {
 
     public synchronized void sendMessage(int id, String encryptedMessage) {
         for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getId() == id) {
+            if (this.clients.get(i).getID() == id) {
                 this.clients.get(i).sendMessageToAnotherClient("MESSAGE", encryptedMessage);
             }
         }
@@ -97,7 +97,7 @@ public class ServerDistributor {
         }
         if (id >= 0) {
             for (int i = 0; i < this.clients.size(); i++) {
-                if (this.clients.get(i).getId() == id) {
+                if (this.clients.get(i).getID() == id) {
                     return true;
                 }
             }
