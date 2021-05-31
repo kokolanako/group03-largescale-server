@@ -51,7 +51,7 @@ public class ServerDistributor {
     public void register(ServerThread client) {
        this.clients.add(client);
     }
-    public String retrieve(int id) {
+    public synchronized String retrieve(int id) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getId() == id) {
                 return this.clients.get(i).getPublicKey();
@@ -60,7 +60,7 @@ public class ServerDistributor {
         return null;
     }
 
-    public String retrieve(String lastName, String firstName) {
+    public synchronized String retrieve(String lastName, String firstName) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
                 return this.clients.get(i).getPublicKey();
@@ -69,7 +69,7 @@ public class ServerDistributor {
         return null;
     }
 
-    public void sendMessage(int id, String encryptedMessage) {
+    public synchronized void sendMessage(int id, String encryptedMessage) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getId() == id) {
                 this.clients.get(i).sendMessageToAnotherClient("MESSAGE", encryptedMessage);
@@ -77,7 +77,7 @@ public class ServerDistributor {
         }
     }
 
-    public void sendMessage(String lastName, String firstName, String encryptedMessage) {
+    public synchronized void sendMessage(String lastName, String firstName, String encryptedMessage) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)){
                 this.clients.get(i).sendMessageToAnotherClient("MESSAGE", encryptedMessage);
