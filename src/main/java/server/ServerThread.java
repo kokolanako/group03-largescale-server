@@ -60,12 +60,17 @@ public class ServerThread extends Thread {
         }
     }
 
-    public void sendMessageToClient(String type, String msg) {
-        //Encrypt with public key
-        //TODO
+    public void sendMessageToAnotherClient(String type, String msg) {
         Message sendMsg = new Message();
         sendMsg.setTYPE(type);
-        sendMsg.setMessageText(msg);
+        if(type.equals("ASK_PUBLIC_KEY")){
+
+            sendMsg.setPublicKey(msg);
+        }else if(type.equals("MESSAGE")){
+            sendMsg.setMessageText(msg);
+
+        }
+
         try {
             this.dataOutputStream.writeObject(sendMsg);
             this.dataOutputStream.flush();
@@ -79,17 +84,32 @@ public class ServerThread extends Thread {
         if (msg.getTYPE() == "REGISTER") {
             System.out.println("Server registered " + msg.getId());
             if (this.distributor.alreadyExists(msg.getId(), msg.getLastName(), msg.getFirstName())) {
-                this.sendMessageToClient("ERROR", "Identical client already exists");
+                this.sendMessageToAnotherClient("ERROR", null);
             } else {
                 this.register(msg.getId(), msg.getLastName(), msg.getFirstName(), msg.getPublicKey());
                 this.distributor.register(this);
-                this.sendMessageToClient("OK", null); //else ERROR +msg
+                this.sendMessageToAnotherClient("OK", null); //else ERROR +msg
 
             }
 
-        } else if (msg.getTYPE() == "MESSAGE") {
-            //TODO decrypt
-            System.out.println("Server received from client " + msg.getMessageText());
+        } else if (msg.getTYPE().equals( "ASK_PUBLIC_KEY") ){
+            if(msg.getFirstName()!= null && msg.getLastName()!=null){
+                String publicKey=this.distributor.retrieve(msg.getLastName(),msg.getFirstName());
+                msg.setPublicKey(publicKey);
+                this.sendMessageToAnotherClient(msg.getTYPE(),publicKey);
+
+            }else{
+                String publicKey=this.distributor.retrieve(msg.getId());
+                msg.setPublicKey(publicKey);
+                this.sendMessageToAnotherClient(msg.getTYPE(),publicKey);
+            }
+        }else if(msg.getTYPE().equals("MESSAGE")){
+            if(msg.getFirstName()!= null && msg.getLastName()!=null){
+                this.distributor.sendMessage(msg.getLastName(),msg.getFirstName(),msg.getMessageText());
+
+            }else{
+                this.distributor.sendMessage(msg.getId(),msg.getMessageText());
+            }
         }
     }
 

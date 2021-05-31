@@ -3,10 +3,7 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ServerDistributor {
 
@@ -18,7 +15,7 @@ public class ServerDistributor {
 
     public ServerDistributor(int port) {
         this.PORT = port;
-        this.clients = new ArrayList<>();
+        this.clients = Collections.synchronizedList(new ArrayList<>());
 
         try {
             serverSocket = new ServerSocket(PORT);
@@ -65,25 +62,25 @@ public class ServerDistributor {
 
     public String retrieve(String lastName, String firstName) {
         for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getLastName() == lastName && this.clients.get(i).getFirstName() == firstName) {
+            if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
                 return this.clients.get(i).getPublicKey();
             }
         }
         return null;
     }
 
-    public void sendMessage(int id, String clearMessage) {
+    public void sendMessage(int id, String encryptedMessage) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getId() == id) {
-                this.clients.get(i).sendMessageToClient("SERVER_RESPONSE", clearMessage);
+                this.clients.get(i).sendMessageToAnotherClient("MESSAGE", encryptedMessage);
             }
         }
     }
 
-    public void sendMessage(String lastName, String firstName, String clearMessage) {
+    public void sendMessage(String lastName, String firstName, String encryptedMessage) {
         for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getLastName() == lastName && this.clients.get(i).getFirstName() == firstName) {
-                this.clients.get(i).sendMessageToClient("SERVER_RESPONSE", clearMessage);
+            if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)){
+                this.clients.get(i).sendMessageToAnotherClient("MESSAGE", encryptedMessage);
             }
         }
 
@@ -93,7 +90,7 @@ public class ServerDistributor {
         if (lastName != null && firstName != null) {
 
             for (int i = 0; i < this.clients.size(); i++) {
-                if (this.clients.get(i).getLastName() == lastName && this.clients.get(i).getFirstName() == firstName) {
+                if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)){
                     return true;
                 }
             }
