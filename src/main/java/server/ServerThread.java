@@ -60,10 +60,10 @@ public class ServerThread extends Thread {
         }
     }
 
-    public void sendMessageToClient( String type,String msg){
+    public void sendMessageToClient(String type, String msg) {
         //Encrypt with public key
         //TODO
-        Message sendMsg=new Message();
+        Message sendMsg = new Message();
         sendMsg.setTYPE(type);
         sendMsg.setMessageText(msg);
         try {
@@ -77,13 +77,18 @@ public class ServerThread extends Thread {
 
     private void readObjectAndTakeAction(Message msg) {
         if (msg.getTYPE() == "REGISTER") {
-            System.out.println("Server registered "+msg.getId());
+            System.out.println("Server registered " + msg.getId());
             this.register(msg.getId(), msg.getLastName(), msg.getFirstName(), msg.getPublicKey());
-            //TODO check if already exists in distributor by id or names
-            this.sendMessageToClient("OK",null); //else ERROR +msg
+            if (this.distributor.alreadyExists(msg.getId(), msg.getLastName(), msg.getFirstName())) {
+                this.sendMessageToClient("ERROR", "Identical client already exists");
+            } else {
+                this.sendMessageToClient("OK", null); //else ERROR +msg
+
+            }
 
         } else if (msg.getTYPE() == "MESSAGE") {
-            System.out.println("Server received "+msg.getMessageText());
+            //TODO decrypt
+            System.out.println("Server received from client " + msg.getMessageText());
         }
     }
 

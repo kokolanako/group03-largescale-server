@@ -73,7 +73,7 @@ public class ServerDistributor {
     public void sendMessage(int id, String clearMessage) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getId() == id) {
-                this.clients.get(i).sendMessageToClient("SERVER_RESPONSE",clearMessage);
+                this.clients.get(i).sendMessageToClient("SERVER_RESPONSE", clearMessage);
             }
         }
     }
@@ -81,10 +81,29 @@ public class ServerDistributor {
     public void sendMessage(String lastName, String firstName, String clearMessage) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getLastName() == lastName && this.clients.get(i).getFirstName() == firstName) {
-                this.clients.get(i).sendMessageToClient("SERVER_RESPONSE",clearMessage);
+                this.clients.get(i).sendMessageToClient("SERVER_RESPONSE", clearMessage);
             }
         }
 
+    }
+
+    public boolean alreadyExists(int id, String lastName, String firstName) {
+        if (lastName != null && firstName != null) {
+
+            for (int i = 0; i < this.clients.size(); i++) {
+                if (this.clients.get(i).getLastName() == lastName && this.clients.get(i).getFirstName() == firstName) {
+                    return true;
+                }
+            }
+        }
+        if (id >= 0) {
+            for (int i = 0; i < this.clients.size(); i++) {
+                if (this.clients.get(i).getId() == id) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 
