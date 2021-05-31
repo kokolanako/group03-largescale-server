@@ -48,6 +48,14 @@ public class ServerDistributor {
             }
         }
     }
+    public void deregister(String lastName, String firstName) {
+        for (int i = 0; i < this.clients.size(); i++) {
+            if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName))  {
+                this.clients.remove(i);
+            }
+        }
+    }
+
     public void register(ServerThread client) {
        this.clients.add(client);
     }
@@ -95,7 +103,7 @@ public class ServerDistributor {
                 }
             }
         }
-        if (id >= 0) {
+        if (id > 0) {
             for (int i = 0; i < this.clients.size(); i++) {
                 if (this.clients.get(i).getId() == id) {
                     return true;
