@@ -41,27 +41,29 @@ public class ServerDistributor {
     }
 
 
-    public void deregister(int id) {
+    public void deregister(String id) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getID() == id) {
                 this.clients.remove(i);
             }
         }
     }
+
     public void deregister(String lastName, String firstName) {
         for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName))  {
+            if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
                 this.clients.remove(i);
             }
         }
     }
 
     public void register(ServerThread client) {
-       this.clients.add(client);
+        this.clients.add(client);
     }
-    public synchronized String retrieve(int id) {
+
+    public synchronized String retrieve(String id) {
         for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getID() == id) {
+            if (this.clients.get(i).getID().equals(id)) {
                 return this.clients.get(i).getPublicKey();
             }
         }
@@ -77,9 +79,9 @@ public class ServerDistributor {
         return null;
     }
 
-    public synchronized void sendMessage(int id, String encryptedMessage) {
+    public synchronized void sendMessage(String id, String encryptedMessage) {
         for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getID() == id) {
+            if (this.clients.get(i).getID().equals(id)) {
                 this.clients.get(i).sendMessageToAnotherClient("MESSAGE", encryptedMessage);
             }
         }
@@ -87,25 +89,25 @@ public class ServerDistributor {
 
     public synchronized void sendMessage(String lastName, String firstName, String encryptedMessage) {
         for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)){
+            if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
                 this.clients.get(i).sendMessageToAnotherClient("MESSAGE", encryptedMessage);
             }
         }
 
     }
 
-    public boolean alreadyExists(int id, String lastName, String firstName) {
+    public boolean alreadyExists(String id, String lastName, String firstName) {
         if (lastName != null && firstName != null) {
 
             for (int i = 0; i < this.clients.size(); i++) {
-                if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)){
+                if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
                     return true;
                 }
             }
         }
-        if (id > 0) {
+        if (!id.isEmpty()) {
             for (int i = 0; i < this.clients.size(); i++) {
-                if (this.clients.get(i).getID() == id) {
+                if (this.clients.get(i).getID().equals(id)) {
                     return true;
                 }
             }

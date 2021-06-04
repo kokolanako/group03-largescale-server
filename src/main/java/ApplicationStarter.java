@@ -10,11 +10,11 @@ import java.net.Socket;
 public class ApplicationStarter {
 
 
-  static final int PORT =5001;
+  static final int PORT =13370;
 
   public static void main(String[] args) throws IOException {
 
-    ServerDistributor distributor = new ServerDistributor(5001);
+    ServerDistributor distributor = new ServerDistributor(13370);
     distributor.start();
     System.out.println("server starts");
 

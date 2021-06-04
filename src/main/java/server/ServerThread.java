@@ -9,7 +9,7 @@ public class ServerThread extends Thread {
     private Socket client;
     private ServerDistributor distributor;
     @Getter
-    private int iD;
+    private String iD;
     @Getter
     private String firstName;
     @Getter
@@ -119,7 +119,7 @@ public class ServerThread extends Thread {
         }
     }
 
-    public void register(int id, String lastName, String firstName, String publicKey) {
+    public void register(String id, String lastName, String firstName, String publicKey) {
         this.iD = id;
         this.lastName = lastName;
         this.firstName = firstName;
