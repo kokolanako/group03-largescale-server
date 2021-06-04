@@ -24,7 +24,13 @@ public class ServerThread extends Thread {
         try {
             dataOutputStream = new ObjectOutputStream(this.client.getOutputStream());
             dataInputStream = new ObjectInputStream(this.client.getInputStream());
-        } catch (IOException e) {
+            //FIXME try to read message / recieves the message ?
+            System.out.println(dataInputStream.toString());
+            Message message = new Message();
+            message.readObject(dataInputStream);
+            System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
+                    + " " + message.getId() + " " + message.getMessageText());
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             this.close();
             this.deregister();
@@ -43,10 +49,10 @@ public class ServerThread extends Thread {
     }
 
     private void deregister() {
-        if(this.lastName!=null && this.firstName!=null){
-            this.distributor.deregister(this.lastName,this.firstName);
+        if (this.lastName != null && this.firstName != null) {
+            this.distributor.deregister(this.lastName, this.firstName);
 
-        }else{
+        } else {
 
             this.distributor.deregister(this.iD);
         }
@@ -69,10 +75,10 @@ public class ServerThread extends Thread {
     public void sendMessageToAnotherClient(String type, String msg) {
         Message sendMsg = new Message();
         sendMsg.setTYPE(type);
-        if(type.equals("ASK_PUBLIC_KEY")){
+        if (type.equals("ASK_PUBLIC_KEY")) {
 
             sendMsg.setPublicKey(msg);
-        }else if(type.equals("MESSAGE")){
+        } else if (type.equals("MESSAGE")) {
             sendMsg.setMessageText(msg);
 
         }
@@ -98,23 +104,23 @@ public class ServerThread extends Thread {
 
             }
 
-        } else if (msg.getTYPE().equals( "ASK_PUBLIC_KEY") ){
-            if(msg.getFirstName()!= null && msg.getLastName()!=null){
-                String publicKey=this.distributor.retrieve(msg.getLastName(),msg.getFirstName());
+        } else if (msg.getTYPE().equals("ASK_PUBLIC_KEY")) {
+            if (msg.getFirstName() != null && msg.getLastName() != null) {
+                String publicKey = this.distributor.retrieve(msg.getLastName(), msg.getFirstName());
                 msg.setPublicKey(publicKey);
-                this.sendMessageToAnotherClient(msg.getTYPE(),publicKey);
+                this.sendMessageToAnotherClient(msg.getTYPE(), publicKey);
 
-            }else{
-                String publicKey=this.distributor.retrieve(msg.getId());
+            } else {
+                String publicKey = this.distributor.retrieve(msg.getId());
                 msg.setPublicKey(publicKey);
-                this.sendMessageToAnotherClient(msg.getTYPE(),publicKey);
+                this.sendMessageToAnotherClient(msg.getTYPE(), publicKey);
             }
-        }else if(msg.getTYPE().equals("MESSAGE")){
-            if(msg.getFirstName()!= null && msg.getLastName()!=null){
-                this.distributor.sendMessage(msg.getLastName(),msg.getFirstName(),msg.getMessageText());
+        } else if (msg.getTYPE().equals("MESSAGE")) {
+            if (msg.getFirstName() != null && msg.getLastName() != null) {
+                this.distributor.sendMessage(msg.getLastName(), msg.getFirstName(), msg.getMessageText());
 
-            }else{
-                this.distributor.sendMessage(msg.getId(),msg.getMessageText());
+            } else {
+                this.distributor.sendMessage(msg.getId(), msg.getMessageText());
             }
         }
     }

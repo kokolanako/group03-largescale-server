@@ -29,7 +29,7 @@ public class Message implements Serializable {
     @Getter
     private String messageText;
 
-    private void readObject(ObjectInputStream aInputStream) throws ClassNotFoundException, IOException {
+     void readObject(ObjectInputStream aInputStream) throws ClassNotFoundException, IOException {
         TYPE = aInputStream.readUTF();
         id = aInputStream.readUTF();
         firstName = aInputStream.readUTF();
@@ -38,7 +38,7 @@ public class Message implements Serializable {
         messageText= aInputStream.readUTF();
     }
 
-    private void writeObject(ObjectOutputStream aOutputStream) throws IOException {
+     void writeObject(ObjectOutputStream aOutputStream) throws IOException {
         aOutputStream.writeUTF(TYPE);
         aOutputStream.writeUTF(id);
         aOutputStream.writeUTF(firstName);
