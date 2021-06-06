@@ -27,7 +27,7 @@ public class ServerThread extends Thread {
             //FIXME try to read message / recieves the message ?
             System.out.println(dataInputStream.toString());
             Message message = new Message();
-            message.readObject(dataInputStream);
+            message = (Message) dataInputStream.readObject(); //changed
             System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
                     + " " + message.getId() + " " + message.getMessageText());
         } catch (IOException | ClassNotFoundException e) {
