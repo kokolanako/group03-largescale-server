@@ -1,5 +1,6 @@
 package server;
 
+import communication.Message;
 import lombok.Getter;
 
 import java.io.*;
