@@ -57,7 +57,7 @@ public class ServerDistributor {
         }
     }
 
-    public void register(ServerThread client) {
+    public synchronized void register(ServerThread client) {
         this.clients.add(client);
     }
 

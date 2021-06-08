@@ -22,16 +22,17 @@ public class ServerThread extends Thread {
 
     public ServerThread(Socket client, ServerDistributor distributor) {
         this.client = client;
+        this.distributor=distributor;
         try {
             dataOutputStream = new ObjectOutputStream(this.client.getOutputStream());
             dataInputStream = new ObjectInputStream(this.client.getInputStream());
             //FIXME try to read message / recieves the message ?
-            System.out.println(dataInputStream.toString());
-            Message message = new Message();
-            message = (Message) dataInputStream.readObject(); //changed
-            System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
-                    + " " + message.getId() + " " + message.getMessageText());
-        } catch (IOException | ClassNotFoundException e) {
+//            System.out.println(dataInputStream.toString());
+//            Message message = new Message();
+//            message = (Message) dataInputStream.readObject(); //changed
+
+//            this.readObjectAndTakeAction(message);
+        } catch (IOException e) {
             e.printStackTrace();
             this.close();
             this.deregister();
@@ -63,8 +64,10 @@ public class ServerThread extends Thread {
     public void run() {
         while (true) {
             try {
-                Message msg = (Message) this.dataInputStream.readObject();
-                this.readObjectAndTakeAction(msg);
+                Message message = (Message) this.dataInputStream.readObject();
+                System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
+                        + " " + message.getId() + " " + message.getMessageText());
+                this.readObjectAndTakeAction(message);
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (ClassNotFoundException e) {
@@ -94,14 +97,15 @@ public class ServerThread extends Thread {
     }
 
     private void readObjectAndTakeAction(Message msg) {
-        if (msg.getTYPE() == "REGISTER") {
+        System.out.println("HERE");
+        if (msg.getTYPE().equals( "REGISTER")) {
             System.out.println("Server registered " + msg.getId());
             if (this.distributor.alreadyExists(msg.getId(), msg.getLastName(), msg.getFirstName())) {
                 this.sendMessageToAnotherClient("ERROR", null);
             } else {
                 this.register(msg.getId(), msg.getLastName(), msg.getFirstName(), msg.getPublicKey());
                 this.distributor.register(this);
-                this.sendMessageToAnotherClient("OK", null); //else ERROR +msg
+                this.sendMessageToAnotherClient("OK", "Client registered."); //else ERROR +msg
 
             }
 
