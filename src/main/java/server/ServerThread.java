@@ -98,6 +98,9 @@ public class ServerThread extends Thread {
         } else if (type.equals("MESSAGE")) {
             sendMsg.setMessageText(msg);
 
+        }else if (type.equals("OK")) {
+            sendMsg.setMessageText(msg);
+
         }
 
         try {
