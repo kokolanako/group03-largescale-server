@@ -44,6 +44,7 @@ public class ServerDistributor {
     public void deregister(String id) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getID() == id) {
+                this.clients.get(i).interrupt();
                 this.clients.remove(i);
             }
         }

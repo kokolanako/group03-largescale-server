@@ -5,12 +5,13 @@ import lombok.Getter;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class ServerThread extends Thread {
     private Socket client;
     private ServerDistributor distributor;
     @Getter
-    private String iD;
+    private String ID;
     @Getter
     private String firstName;
     @Getter
@@ -48,6 +49,8 @@ public class ServerThread extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
     }
 
     private void deregister() {
@@ -56,7 +59,7 @@ public class ServerThread extends Thread {
 
         } else {
 
-            this.distributor.deregister(this.iD);
+            this.distributor.deregister(this.ID);
         }
     }
 
@@ -68,11 +71,21 @@ public class ServerThread extends Thread {
                 System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
                         + " " + message.getId() + " " + message.getMessageText());
                 this.readObjectAndTakeAction(message);
+            } catch (SocketException e){
+                e.printStackTrace();
+
+
             } catch (IOException e) {
                 e.printStackTrace();
+
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
+            System.out.println("Exception");
+            System.out.println("Client "+this.ID +" is disconnected.");
+            this.close();
+            this.distributor.deregister(this.ID);
+            break;
         }
     }
 
@@ -97,7 +110,6 @@ public class ServerThread extends Thread {
     }
 
     private void readObjectAndTakeAction(Message msg) {
-        System.out.println("HERE");
         if (msg.getTYPE().equals( "REGISTER")) {
             System.out.println("Server registered " + msg.getId());
             if (this.distributor.alreadyExists(msg.getId(), msg.getLastName(), msg.getFirstName())) {
@@ -131,7 +143,7 @@ public class ServerThread extends Thread {
     }
 
     public void register(String id, String lastName, String firstName, String publicKey) {
-        this.iD = id;
+        this.ID = id;
         this.lastName = lastName;
         this.firstName = firstName;
         this.publicKey = publicKey;
