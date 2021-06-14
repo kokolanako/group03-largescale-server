@@ -46,6 +46,9 @@ public class ServerThread extends Thread {
             this.client.close();
             this.dataInputStream.close();
             this.dataOutputStream.close();
+            this.client = null;
+            this.dataInputStream = null;
+            this.dataOutputStream = null;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -67,11 +70,15 @@ public class ServerThread extends Thread {
     public void run() {
         while (true) {
             try {
-                Message message = (Message) this.dataInputStream.readObject();
-                System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
-                        + " " + message.getId() + " " + message.getMessageText());
-                this.readObjectAndTakeAction(message);
-            } catch (SocketException e){
+                if (this.client != null && !this.client.isClosed()) {
+                    Message message = (Message) this.dataInputStream.readObject();
+                    System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
+                            + " " + message.getId() + " " + message.getMessageText());
+                    this.readObjectAndTakeAction(message);
+                } else {
+                    break;
+                }
+            } catch (SocketException e) {
                 e.printStackTrace();
 
 
@@ -140,6 +147,11 @@ public class ServerThread extends Thread {
                 this.sendMessageToAnotherClient("OK", "Message send to " + msg.getId());
                 //TODO if reciever is not online awnser sender with error
             }
+        } else if (msg.getTYPE().equals("CLOSE_CONNECTION")) {
+            this.sendMessageToAnotherClient("OK", "close and deregister Client from server");
+            System.out.println("Client " + this.ID + " is disconnected.");
+            this.distributor.deregister(this.ID);
+            this.close();
         }
     }
 
