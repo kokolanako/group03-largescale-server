@@ -23,7 +23,7 @@ public class ServerThread extends Thread {
 
     public ServerThread(Socket client, ServerDistributor distributor) {
         this.client = client;
-        this.distributor=distributor;
+        this.distributor = distributor;
         try {
             dataOutputStream = new ObjectOutputStream(this.client.getOutputStream());
             dataInputStream = new ObjectInputStream(this.client.getInputStream());
@@ -81,11 +81,6 @@ public class ServerThread extends Thread {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-            System.out.println("Exception");
-            System.out.println("Client "+this.ID +" is disconnected.");
-            this.close();
-            this.distributor.deregister(this.ID);
-            break;
         }
     }
 
@@ -98,7 +93,7 @@ public class ServerThread extends Thread {
         } else if (type.equals("MESSAGE")) {
             sendMsg.setMessageText(msg);
 
-        }else if (type.equals("OK")) {
+        } else if (type.equals("OK")) {
             sendMsg.setMessageText(msg);
 
         }
@@ -113,7 +108,7 @@ public class ServerThread extends Thread {
     }
 
     private void readObjectAndTakeAction(Message msg) {
-        if (msg.getTYPE().equals( "REGISTER")) {
+        if (msg.getTYPE().equals("REGISTER")) {
             System.out.println("Server registered " + msg.getId());
             if (this.distributor.alreadyExists(msg.getId(), msg.getLastName(), msg.getFirstName())) {
                 this.sendMessageToAnotherClient("ERROR", null);
@@ -138,9 +133,12 @@ public class ServerThread extends Thread {
         } else if (msg.getTYPE().equals("MESSAGE")) {
             if (msg.getFirstName() != null && msg.getLastName() != null) {
                 this.distributor.sendMessage(msg.getLastName(), msg.getFirstName(), msg.getMessageText());
-
+                this.sendMessageToAnotherClient("OK", "Message send to " + msg.getFirstName() + " " + msg.getLastName());
+                //TODO if reciever is not online awnser sender with error
             } else {
                 this.distributor.sendMessage(msg.getId(), msg.getMessageText());
+                this.sendMessageToAnotherClient("OK", "Message send to " + msg.getId());
+                //TODO if reciever is not online awnser sender with error
             }
         }
     }
