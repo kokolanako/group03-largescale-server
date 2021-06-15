@@ -27,12 +27,6 @@ public class ServerThread extends Thread {
         try {
             dataOutputStream = new ObjectOutputStream(this.client.getOutputStream());
             dataInputStream = new ObjectInputStream(this.client.getInputStream());
-            //FIXME try to read message / recieves the message ?
-//            System.out.println(dataInputStream.toString());
-//            Message message = new Message();
-//            message = (Message) dataInputStream.readObject(); //changed
-
-//            this.readObjectAndTakeAction(message);
         } catch (IOException e) {
             e.printStackTrace();
             this.close();
@@ -73,11 +67,13 @@ public class ServerThread extends Thread {
         while (true) {
             try {
                 if (this.client != null && !this.client.isClosed()) {
+
                     Message message = (Message) this.dataInputStream.readObject();
                     System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
                             + " " + message.getId() + " " + message.getMessageText());
                     this.readObjectAndTakeAction(message);
                     continue;
+
                 } else {
                     break;
                 }

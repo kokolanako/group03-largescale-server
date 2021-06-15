@@ -10,12 +10,11 @@ public class ServerDistributor {
     private int PORT;
     private ServerSocket serverSocket = null;
 
-    //every client is listened in an individual thread
     private List<ServerThread> clients;
 
-    public ServerDistributor(int port) {
+    public ServerDistributor(int port, List<ServerThread> clients) {
         this.PORT = port;
-        this.clients = Collections.synchronizedList(new ArrayList<>());
+        this.clients = clients;
 
         try {
             serverSocket = new ServerSocket(PORT);
@@ -36,7 +35,6 @@ public class ServerDistributor {
             // new thread for a client
             ServerThread client = new ServerThread(socket, this);
             client.start();
-
         }
     }
 

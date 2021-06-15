@@ -30,6 +30,7 @@ public class Message implements Serializable {
     @Getter
     private String messageText;
 
+
      void readObject(ObjectInputStream aInputStream) throws ClassNotFoundException, IOException {
         TYPE = aInputStream.readUTF();
         id = aInputStream.readUTF();
@@ -51,4 +52,5 @@ public class Message implements Serializable {
     public String toString(){
          return "Message: "+TYPE;
     }
+
 }
