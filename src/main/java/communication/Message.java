@@ -47,5 +47,8 @@ public class Message implements Serializable {
         aOutputStream.writeUTF(publicKey);
         aOutputStream.writeUTF(messageText);
     }
-
+    @Override
+    public String toString(){
+         return "Message: "+TYPE;
+    }
 }

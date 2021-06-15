@@ -80,21 +80,24 @@ public class ServerDistributor {
         return null;
     }
 
-    public synchronized void sendMessage(String id, String encryptedMessage) {
+    public synchronized boolean sendMessage(String id, String encryptedMessage) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getID().equals(id)) {
                 this.clients.get(i).sendMessageToAnotherClient("MESSAGE", encryptedMessage);
+                return true;
             }
         }
+        return false;
     }
 
-    public synchronized void sendMessage(String lastName, String firstName, String encryptedMessage) {
+    public synchronized boolean sendMessage(String lastName, String firstName, String encryptedMessage) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
                 this.clients.get(i).sendMessageToAnotherClient("MESSAGE", encryptedMessage);
+                return true;
             }
         }
-
+        return false;
     }
 
     public boolean alreadyExists(String id, String lastName, String firstName) {

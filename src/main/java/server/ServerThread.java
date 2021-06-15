@@ -49,6 +49,7 @@ public class ServerThread extends Thread {
             this.client = null;
             this.dataInputStream = null;
             this.dataOutputStream = null;
+            System.out.println("Client exits "+this.getID()+" with name "+this.lastName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -64,6 +65,7 @@ public class ServerThread extends Thread {
 
             this.distributor.deregister(this.ID);
         }
+        this.close();
     }
 
     @Override
@@ -75,6 +77,7 @@ public class ServerThread extends Thread {
                     System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
                             + " " + message.getId() + " " + message.getMessageText());
                     this.readObjectAndTakeAction(message);
+                    continue;
                 } else {
                     break;
                 }
@@ -88,6 +91,7 @@ public class ServerThread extends Thread {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
+            this.deregister();
         }
     }
 
@@ -95,12 +99,12 @@ public class ServerThread extends Thread {
         Message sendMsg = new Message();
         sendMsg.setTYPE(type);
         if (type.equals("ASK_PUBLIC_KEY")) {
-
             sendMsg.setPublicKey(msg);
-        } else if (type.equals("MESSAGE")) {
-            sendMsg.setMessageText(msg);
+        } else if (type.equals("MESSAGE")) {            sendMsg.setMessageText(msg);
 
         } else if (type.equals("OK")) {
+            sendMsg.setMessageText(msg);
+        }else if (type.equals("ERROR")) {
             sendMsg.setMessageText(msg);
 
         }
@@ -111,10 +115,12 @@ public class ServerThread extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("SENT "+sendMsg);
 
     }
 
     private void readObjectAndTakeAction(Message msg) {
+        System.out.println("READ OBJECT "+msg);
         if (msg.getTYPE().equals("REGISTER")) {
             System.out.println("Server registered " + msg.getId());
             if (this.distributor.alreadyExists(msg.getId(), msg.getLastName(), msg.getFirstName())) {
@@ -129,13 +135,24 @@ public class ServerThread extends Thread {
         } else if (msg.getTYPE().equals("ASK_PUBLIC_KEY")) {
             if (msg.getFirstName() != null && msg.getLastName() != null) {
                 String publicKey = this.distributor.retrieve(msg.getLastName(), msg.getFirstName());
-                msg.setPublicKey(publicKey);
-                this.sendMessageToAnotherClient(msg.getTYPE(), publicKey);
+                if (publicKey != null) {
+                    msg.setPublicKey(publicKey);
+                    this.sendMessageToAnotherClient(msg.getTYPE(), publicKey);
+                    return;
+                }else{
+
+                    this.sendMessageToAnotherClient("ERROR","No person found");
+                }
 
             } else {
                 String publicKey = this.distributor.retrieve(msg.getId());
-                msg.setPublicKey(publicKey);
-                this.sendMessageToAnotherClient(msg.getTYPE(), publicKey);
+                if (publicKey != null) {
+                    msg.setPublicKey(publicKey);
+                    this.sendMessageToAnotherClient(msg.getTYPE(), publicKey);
+                    return;
+                }else{
+                    this.sendMessageToAnotherClient("ERROR","No person found");
+                }
             }
         } else if (msg.getTYPE().equals("MESSAGE")) {
             if (msg.getFirstName() != null && msg.getLastName() != null) {
