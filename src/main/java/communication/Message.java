@@ -30,22 +30,4 @@ public class Message implements Serializable {
     @Getter
     private String messageText;
 
-     void readObject(ObjectInputStream aInputStream) throws ClassNotFoundException, IOException {
-        TYPE = aInputStream.readUTF();
-        id = aInputStream.readUTF();
-        firstName = aInputStream.readUTF();
-        lastName = aInputStream.readUTF();
-        publicKey = aInputStream.readUTF();
-        messageText= aInputStream.readUTF();
-    }
-
-     void writeObject(ObjectOutputStream aOutputStream) throws IOException {
-        aOutputStream.writeUTF(TYPE);
-        aOutputStream.writeUTF(id);
-        aOutputStream.writeUTF(firstName);
-        aOutputStream.writeUTF(lastName);
-        aOutputStream.writeUTF(publicKey);
-        aOutputStream.writeUTF(messageText);
-    }
-
 }
