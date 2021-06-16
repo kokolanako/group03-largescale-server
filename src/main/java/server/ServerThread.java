@@ -85,7 +85,7 @@ public class ServerThread extends Thread {
         }
     }
 
-    public void sendMessageToAnotherClient(int msg_id,String type, String msg, ServerThread sender) {
+    public void sendMessageToAnotherClient(int msg_id, String type, String msg, ServerThread sender) {
         Message sendMsg = new Message();
         sendMsg.setTYPE(type);
         sendMsg.setMessage_ID(msg_id);
@@ -114,11 +114,11 @@ public class ServerThread extends Thread {
         if (msg.getTYPE().equals("REGISTER")) {
             System.out.println("Server registered " + msg.getId());
             if (this.distributor.alreadyExists(msg.getId(), msg.getLastName(), msg.getFirstName())) {
-                this.sendMessageToAnotherClient(msg.getMessage_ID(),"ERROR", null,null);
+                this.sendMessageToAnotherClient(msg.getMessage_ID(), "ERROR", null, null);
             } else {
                 this.register(msg.getId(), msg.getLastName(), msg.getFirstName(), msg.getPublicKey());
                 this.distributor.register(this);
-                this.sendMessageToAnotherClient(msg.getMessage_ID(),"OK", "Client registered.", null); //else ERROR +msg
+                this.sendMessageToAnotherClient(msg.getMessage_ID(), "OK", "Client registered.", null); //else ERROR +msg
 
             }
 
@@ -126,25 +126,32 @@ public class ServerThread extends Thread {
             if (msg.getFirstName() != null && msg.getLastName() != null) {
                 String publicKey = this.distributor.retrieve(msg.getLastName(), msg.getFirstName());
                 msg.setPublicKey(publicKey);
-                this.sendMessageToAnotherClient(msg.getTYPE(), publicKey);
+
+                //in random case it will not be send ,just to test retry function of client
+                //uncomment the following  for testing the retry function from client
+                //if (Math.random() >= 0.4) {
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), msg.getTYPE(), publicKey, null);
+//                }else{
+//                    System.out.println(" Do not answer a KEY reqeust");
+//                }
 
             } else {
                 String publicKey = this.distributor.retrieve(msg.getId());
                 msg.setPublicKey(publicKey);
-                this.sendMessageToAnotherClient(msg.getMessage_ID(),msg.getTYPE(), publicKey, null);
+                this.sendMessageToAnotherClient(msg.getMessage_ID(), msg.getTYPE(), publicKey, null);
             }
         } else if (msg.getTYPE().equals("MESSAGE")) {
             if (msg.getFirstName() != null && msg.getLastName() != null) {
-                this.distributor.sendMessage(msg.getLastName(), msg.getFirstName(), msg.getMessageText(),this);
-                this.sendMessageToAnotherClient(msg.getMessage_ID(),"OK", "Message send to " + msg.getFirstName() + " " + msg.getLastName(), null);
+                this.distributor.sendMessage(msg.getLastName(), msg.getFirstName(), msg.getMessageText(), this);
+                this.sendMessageToAnotherClient(msg.getMessage_ID(), "OK", "Message send to " + msg.getFirstName() + " " + msg.getLastName(), null);
                 //TODO if reciever is not online awnser sender with error
             } else {
-                this.distributor.sendMessage(msg.getId(), msg.getMessageText(),this);
-                this.sendMessageToAnotherClient(msg.getMessage_ID(),"OK", "Message send to " + msg.getId(), null);
+                this.distributor.sendMessage(msg.getId(), msg.getMessageText(), this);
+                this.sendMessageToAnotherClient(msg.getMessage_ID(), "OK", "Message send to " + msg.getId(), null);
                 //TODO if reciever is not online awnser sender with error
             }
         } else if (msg.getTYPE().equals("CLOSE_CONNECTION")) {
-            this.sendMessageToAnotherClient(msg.getMessage_ID(),"CLOSE_CONNECTION", "close and deregister Client from server",null);
+            this.sendMessageToAnotherClient(msg.getMessage_ID(), "CLOSE_CONNECTION", "close and deregister Client from server", null);
             System.out.println("Client " + this.ID + " is disconnected.");
             this.distributor.deregister(this.ID);
             this.close();
