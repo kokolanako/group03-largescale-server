@@ -65,10 +65,10 @@ public class ServerThread extends Thread {
         while (true) {
             try {
                 if (this.client != null && !this.client.isClosed()) {
-                        Message message = (Message) this.dataInputStream.readObject();
-                        System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
-                                + " " + message.getId() + " " + message.getMessageText());
-                        this.readObjectAndTakeAction(message);
+                    Message message = (Message) this.dataInputStream.readObject();
+                    System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
+                            + " " + message.getId() + " " + message.getMessageText());
+                    this.readObjectAndTakeAction(message);
                 } else {
                     break;
                 }
@@ -85,18 +85,20 @@ public class ServerThread extends Thread {
         }
     }
 
-    public void sendMessageToAnotherClient(String type, String msg) {
+    public void sendMessageToAnotherClient(int msg_id,String type, String msg, ServerThread sender) {
         Message sendMsg = new Message();
         sendMsg.setTYPE(type);
+        sendMsg.setMessage_ID(msg_id);
         if (type.equals("ASK_PUBLIC_KEY")) {
-
             sendMsg.setPublicKey(msg);
         } else if (type.equals("MESSAGE")) {
+            //msg_id ist 0
             sendMsg.setMessageText(msg);
-
+            //Sender der Message hinzufuegen
+            sendMsg.setLastName(sender.getLastName());
+            sendMsg.setFirstName(sender.getFirstName());
         } else if (type.equals("OK")) {
             sendMsg.setMessageText(msg);
-
         }
 
         try {
@@ -112,11 +114,11 @@ public class ServerThread extends Thread {
         if (msg.getTYPE().equals("REGISTER")) {
             System.out.println("Server registered " + msg.getId());
             if (this.distributor.alreadyExists(msg.getId(), msg.getLastName(), msg.getFirstName())) {
-                this.sendMessageToAnotherClient("ERROR", null);
+                this.sendMessageToAnotherClient(msg.getMessage_ID(),"ERROR", null,null);
             } else {
                 this.register(msg.getId(), msg.getLastName(), msg.getFirstName(), msg.getPublicKey());
                 this.distributor.register(this);
-                this.sendMessageToAnotherClient("OK", "Client registered."); //else ERROR +msg
+                this.sendMessageToAnotherClient(msg.getMessage_ID(),"OK", "Client registered.", null); //else ERROR +msg
 
             }
 
@@ -129,20 +131,20 @@ public class ServerThread extends Thread {
             } else {
                 String publicKey = this.distributor.retrieve(msg.getId());
                 msg.setPublicKey(publicKey);
-                this.sendMessageToAnotherClient(msg.getTYPE(), publicKey);
+                this.sendMessageToAnotherClient(msg.getMessage_ID(),msg.getTYPE(), publicKey, null);
             }
         } else if (msg.getTYPE().equals("MESSAGE")) {
             if (msg.getFirstName() != null && msg.getLastName() != null) {
-                this.distributor.sendMessage(msg.getLastName(), msg.getFirstName(), msg.getMessageText());
-                this.sendMessageToAnotherClient("OK", "Message send to " + msg.getFirstName() + " " + msg.getLastName());
+                this.distributor.sendMessage(msg.getLastName(), msg.getFirstName(), msg.getMessageText(),this);
+                this.sendMessageToAnotherClient(msg.getMessage_ID(),"OK", "Message send to " + msg.getFirstName() + " " + msg.getLastName(), null);
                 //TODO if reciever is not online awnser sender with error
             } else {
-                this.distributor.sendMessage(msg.getId(), msg.getMessageText());
-                this.sendMessageToAnotherClient("OK", "Message send to " + msg.getId());
+                this.distributor.sendMessage(msg.getId(), msg.getMessageText(),this);
+                this.sendMessageToAnotherClient(msg.getMessage_ID(),"OK", "Message send to " + msg.getId(), null);
                 //TODO if reciever is not online awnser sender with error
             }
         } else if (msg.getTYPE().equals("CLOSE_CONNECTION")) {
-            this.sendMessageToAnotherClient("OK", "close and deregister Client from server");
+            this.sendMessageToAnotherClient(msg.getMessage_ID(),"CLOSE_CONNECTION", "close and deregister Client from server",null);
             System.out.println("Client " + this.ID + " is disconnected.");
             this.distributor.deregister(this.ID);
             this.close();
