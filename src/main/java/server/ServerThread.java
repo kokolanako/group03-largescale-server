@@ -43,6 +43,7 @@ public class ServerThread extends Thread {
             this.client = null;
             this.dataInputStream = null;
             this.dataOutputStream = null;
+            System.out.println("Client exits "+this.getID()+" with name "+this.lastName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -58,6 +59,7 @@ public class ServerThread extends Thread {
 
             this.distributor.deregister(this.ID);
         }
+        this.close();
     }
 
     @Override
@@ -69,6 +71,8 @@ public class ServerThread extends Thread {
                     System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
                             + " " + message.getId() + " " + message.getMessageText());
                     this.readObjectAndTakeAction(message);
+                    continue;
+
                 } else {
                     break;
                 }
@@ -82,6 +86,7 @@ public class ServerThread extends Thread {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
+            this.deregister();
         }
     }
 
@@ -107,10 +112,12 @@ public class ServerThread extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("SENT "+sendMsg);
 
     }
 
     private void readObjectAndTakeAction(Message msg) {
+        System.out.println("READ OBJECT "+msg);
         if (msg.getTYPE().equals("REGISTER")) {
             if (this.distributor.alreadyExists(msg.getId(), msg.getLastName(), msg.getFirstName())) {
                 this.sendMessageToAnotherClient(msg.getMessage_ID(), "ERROR", "Client already exist", null);
@@ -125,20 +132,33 @@ public class ServerThread extends Thread {
         } else if (msg.getTYPE().equals("ASK_PUBLIC_KEY")) {
             if (msg.getFirstName() != null && msg.getLastName() != null) {
                 String publicKey = this.distributor.retrieve(msg.getLastName(), msg.getFirstName());
-                msg.setPublicKey(publicKey);
 
-                //in random case it will not be send ,just to test what happens if client get no server response
-                //uncomment the following code for testing
+                if (publicKey != null) {
+                    msg.setPublicKey(publicKey);
+                    //in random case it will not be send ,just to test what happens if client get no server response
+                    //uncomment the following code for testing
 //                if (Math.random() >= 0.25) {
                     this.sendMessageToAnotherClient(msg.getMessage_ID(), msg.getTYPE(), publicKey, null);
 //                } else {
 //                    System.out.println(" Do not answer a KEY reqeust");
 //                }
+                    return;
+                }else{
+
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(),"ERROR","No person found",null);
+                }
 
             } else {
                 String publicKey = this.distributor.retrieve(msg.getId());
                 msg.setPublicKey(publicKey);
                 this.sendMessageToAnotherClient(msg.getMessage_ID(), msg.getTYPE(), publicKey, null);
+                if (publicKey != null) {
+                    msg.setPublicKey(publicKey);
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), msg.getTYPE(), publicKey,null);
+                    return;
+                }else{
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), "ERROR","No person found",null);
+                }
             }
         } else if (msg.getTYPE().equals("MESSAGE")) {
             if (msg.getFirstName() != null && msg.getLastName() != null) {

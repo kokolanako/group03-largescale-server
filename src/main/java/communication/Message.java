@@ -32,4 +32,10 @@ public class Message implements Serializable {
     @Getter
     @Setter
     private int message_ID;
+
+    @Override
+    public String toString(){
+         return "Message: "+TYPE;
+    }
+
 }
