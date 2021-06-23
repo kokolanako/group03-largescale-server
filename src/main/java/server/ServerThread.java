@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 
 public class ServerThread extends Thread {
     private Socket client;
@@ -43,7 +42,7 @@ public class ServerThread extends Thread {
             this.client = null;
             this.dataInputStream = null;
             this.dataOutputStream = null;
-            System.out.println("Client exits "+this.getID()+" with name "+this.lastName);
+            System.out.println("Client exits " + this.getID() + " with name " + this.lastName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,7 +55,6 @@ public class ServerThread extends Thread {
             this.distributor.deregister(this.lastName, this.firstName);
 
         } else {
-
             this.distributor.deregister(this.ID);
         }
         this.close();
@@ -76,14 +74,7 @@ public class ServerThread extends Thread {
                 } else {
                     break;
                 }
-            } catch (SocketException e) {
-                e.printStackTrace();
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-
-            } catch (ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
             this.deregister();
@@ -102,7 +93,7 @@ public class ServerThread extends Thread {
             //Sender der Message hinzufuegen
             sendMsg.setLastName(sender.getLastName());
             sendMsg.setFirstName(sender.getFirstName());
-        } else if (type.equals("OK") ||(type.equals("ERROR"))) {
+        } else if (type.equals("OK") || (type.equals("ERROR"))) {
             sendMsg.setMessageText(msg);
         }
 
@@ -112,12 +103,12 @@ public class ServerThread extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("SENT "+sendMsg);
+        System.out.println("SENT " + sendMsg);
 
     }
 
     private void readObjectAndTakeAction(Message msg) {
-        System.out.println("READ OBJECT "+msg);
+        System.out.println("READ OBJECT " + msg);
         if (msg.getTYPE().equals("REGISTER")) {
             if (this.distributor.alreadyExists(msg.getId(), msg.getLastName(), msg.getFirstName())) {
                 this.sendMessageToAnotherClient(msg.getMessage_ID(), "ERROR", "Client already exist", null);
@@ -135,17 +126,10 @@ public class ServerThread extends Thread {
 
                 if (publicKey != null) {
                     msg.setPublicKey(publicKey);
-                    //in random case it will not be send ,just to test what happens if client get no server response
-                    //uncomment the following code for testing
-//                if (Math.random() >= 0.25) {
                     this.sendMessageToAnotherClient(msg.getMessage_ID(), msg.getTYPE(), publicKey, null);
-//                } else {
-//                    System.out.println(" Do not answer a KEY reqeust");
-//                }
-                    return;
-                }else{
+                } else {
 
-                    this.sendMessageToAnotherClient(msg.getMessage_ID(),"ERROR","No person found",null);
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), "ERROR", "No person found", null);
                 }
 
             } else {
@@ -154,10 +138,9 @@ public class ServerThread extends Thread {
                 this.sendMessageToAnotherClient(msg.getMessage_ID(), msg.getTYPE(), publicKey, null);
                 if (publicKey != null) {
                     msg.setPublicKey(publicKey);
-                    this.sendMessageToAnotherClient(msg.getMessage_ID(), msg.getTYPE(), publicKey,null);
-                    return;
-                }else{
-                    this.sendMessageToAnotherClient(msg.getMessage_ID(), "ERROR","No person found",null);
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), msg.getTYPE(), publicKey, null);
+                } else {
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), "ERROR", "No person found", null);
                 }
             }
         } else if (msg.getTYPE().equals("MESSAGE")) {
