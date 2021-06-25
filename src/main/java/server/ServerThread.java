@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 
 public class ServerThread extends Thread {
     private Socket client;
@@ -43,7 +42,7 @@ public class ServerThread extends Thread {
             this.client = null;
             this.dataInputStream = null;
             this.dataOutputStream = null;
-            System.out.println("Client exits "+this.getID()+" with name "+this.lastName);
+            System.out.println("Client exits " + this.getID() + " with name " + this.lastName);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,7 +55,6 @@ public class ServerThread extends Thread {
             this.distributor.deregister(this.lastName, this.firstName);
 
         } else {
-
             this.distributor.deregister(this.ID);
         }
         this.close();
@@ -67,7 +65,6 @@ public class ServerThread extends Thread {
         while (true) {
             try {
                 if (this.client != null && !this.client.isClosed()) {
-
                     Message message = (Message) this.dataInputStream.readObject();
                     System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
                             + " " + message.getId() + " " + message.getMessageText());
@@ -77,32 +74,27 @@ public class ServerThread extends Thread {
                 } else {
                     break;
                 }
-            } catch (SocketException e) {
-                e.printStackTrace();
-
-
-            } catch (IOException e) {
-                e.printStackTrace();
-
-            } catch (ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
             this.deregister();
         }
     }
 
-    public void sendMessageToAnotherClient(String type, String msg) {
+    public void sendMessageToAnotherClient(int msg_id, String type, String msg, ServerThread sender) {
         Message sendMsg = new Message();
         sendMsg.setTYPE(type);
+        sendMsg.setMessage_ID(msg_id);
         if (type.equals("ASK_PUBLIC_KEY")) {
             sendMsg.setPublicKey(msg);
-        } else if (type.equals("MESSAGE")) {            sendMsg.setMessageText(msg);
-
-        } else if (type.equals("OK")) {
+        } else if (type.equals("MESSAGE")) {
+            //msg_id ist 0
             sendMsg.setMessageText(msg);
-        }else if (type.equals("ERROR")) {
+            //Sender der Message hinzufuegen
+            sendMsg.setLastName(sender.getLastName());
+            sendMsg.setFirstName(sender.getFirstName());
+        } else if (type.equals("OK") || (type.equals("ERROR"))) {
             sendMsg.setMessageText(msg);
-
         }
 
         try {
@@ -111,57 +103,66 @@ public class ServerThread extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("SENT "+sendMsg);
+        System.out.println("SENT " + sendMsg);
 
     }
 
     private void readObjectAndTakeAction(Message msg) {
-        System.out.println("READ OBJECT "+msg);
+        System.out.println("READ OBJECT " + msg);
         if (msg.getTYPE().equals("REGISTER")) {
-            System.out.println("Server registered " + msg.getId());
             if (this.distributor.alreadyExists(msg.getId(), msg.getLastName(), msg.getFirstName())) {
-                this.sendMessageToAnotherClient("ERROR", null);
+                this.sendMessageToAnotherClient(msg.getMessage_ID(), "ERROR", "Client already exist", null);
             } else {
                 this.register(msg.getId(), msg.getLastName(), msg.getFirstName(), msg.getPublicKey());
                 this.distributor.register(this);
-                this.sendMessageToAnotherClient("OK", "Client registered."); //else ERROR +msg
-
+                this.sendMessageToAnotherClient(msg.getMessage_ID(), "OK",
+                        "Client " + this.firstName + " " + lastName + " registered", null); //else ERROR +msg
+                System.out.println("Server registered " + msg.getId());
             }
 
         } else if (msg.getTYPE().equals("ASK_PUBLIC_KEY")) {
             if (msg.getFirstName() != null && msg.getLastName() != null) {
                 String publicKey = this.distributor.retrieve(msg.getLastName(), msg.getFirstName());
+
                 if (publicKey != null) {
                     msg.setPublicKey(publicKey);
-                    this.sendMessageToAnotherClient(msg.getTYPE(), publicKey);
-                    return;
-                }else{
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), msg.getTYPE(), publicKey, null);
+                } else {
 
-                    this.sendMessageToAnotherClient("ERROR","No person found");
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), "ERROR", "No person found", null);
                 }
 
             } else {
                 String publicKey = this.distributor.retrieve(msg.getId());
+                msg.setPublicKey(publicKey);
+                this.sendMessageToAnotherClient(msg.getMessage_ID(), msg.getTYPE(), publicKey, null);
                 if (publicKey != null) {
                     msg.setPublicKey(publicKey);
-                    this.sendMessageToAnotherClient(msg.getTYPE(), publicKey);
-                    return;
-                }else{
-                    this.sendMessageToAnotherClient("ERROR","No person found");
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), msg.getTYPE(), publicKey, null);
+                } else {
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), "ERROR", "No person found", null);
                 }
             }
         } else if (msg.getTYPE().equals("MESSAGE")) {
             if (msg.getFirstName() != null && msg.getLastName() != null) {
-                this.distributor.sendMessage(msg.getLastName(), msg.getFirstName(), msg.getMessageText());
-                this.sendMessageToAnotherClient("OK", "Message send to " + msg.getFirstName() + " " + msg.getLastName());
-                //TODO if reciever is not online awnser sender with error
+                boolean successful = this.distributor.sendMessage(msg.getLastName(), msg.getFirstName(), msg.getMessageText(), this);
+                if (successful) {
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), "OK", "Message send to "
+                            + msg.getFirstName() + " " + msg.getLastName(), null);
+                } else {
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), "ERROR", "Can not send message to "
+                            + msg.getFirstName() + " " + msg.getLastName(), null);
+                }
             } else {
-                this.distributor.sendMessage(msg.getId(), msg.getMessageText());
-                this.sendMessageToAnotherClient("OK", "Message send to " + msg.getId());
-                //TODO if reciever is not online awnser sender with error
+                boolean successful = this.distributor.sendMessage(msg.getId(), msg.getMessageText(), this);
+                if (successful) {
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), "OK", "Message send to " + msg.getId(), null);
+                } else {
+                    this.sendMessageToAnotherClient(msg.getMessage_ID(), "ERROR", "Can not send message to " + msg.getId(), null);
+                }
             }
         } else if (msg.getTYPE().equals("CLOSE_CONNECTION")) {
-            this.sendMessageToAnotherClient("OK", "close and deregister Client from server");
+            this.sendMessageToAnotherClient(msg.getMessage_ID(), "CLOSE_CONNECTION", "close and deregister Client from server", null);
             System.out.println("Client " + this.ID + " is disconnected.");
             this.distributor.deregister(this.ID);
             this.close();

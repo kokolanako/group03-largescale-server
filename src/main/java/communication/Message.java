@@ -2,10 +2,6 @@ package communication;
 
 import lombok.Getter;
 import lombok.Setter;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 //todo: Message nur noch per referenz aufrufen
@@ -29,25 +25,10 @@ public class Message implements Serializable {
     @Setter
     @Getter
     private String messageText;
+    @Getter
+    @Setter
+    private int message_ID;
 
-
-     void readObject(ObjectInputStream aInputStream) throws ClassNotFoundException, IOException {
-        TYPE = aInputStream.readUTF();
-        id = aInputStream.readUTF();
-        firstName = aInputStream.readUTF();
-        lastName = aInputStream.readUTF();
-        publicKey = aInputStream.readUTF();
-        messageText= aInputStream.readUTF();
-    }
-
-     void writeObject(ObjectOutputStream aOutputStream) throws IOException {
-        aOutputStream.writeUTF(TYPE);
-        aOutputStream.writeUTF(id);
-        aOutputStream.writeUTF(firstName);
-        aOutputStream.writeUTF(lastName);
-        aOutputStream.writeUTF(publicKey);
-        aOutputStream.writeUTF(messageText);
-    }
     @Override
     public String toString(){
          return "Message: "+TYPE;
