@@ -25,8 +25,8 @@ public class ConfigParser {
   public static String listOfObjectsToString(List<?> objects) {
     StringBuilder sb = new StringBuilder();
     for (Object object : objects) {
+
       sb.append(object.toString() + "\n");
-      sb.append("******");
     }
     return sb.toString();
   }

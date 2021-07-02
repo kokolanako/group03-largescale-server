@@ -20,7 +20,7 @@ import java.util.List;
 public class Employee {
 
   @JsonProperty("id")
-  private int id;
+  private String id;
   @JsonProperty("roles")
   private List<String> roles;
 
@@ -31,6 +31,9 @@ public class Employee {
     sb.append("-Roles:"+"\n");
     sb.append(ConfigParser.listOfObjectsToString(roles));
     return sb.toString();
+  }
+  public String getType(){
+    return "EMPLOYEE_TYPE";
   }
 
 }

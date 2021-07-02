@@ -3,14 +3,17 @@
     {
       "name": "Sparkasse",
       "roles": [
-          "ROLE1",
-          "ROLE2"
+        "REPRESENTER",
+        "ADMIN",
+        "EMPLOYEE",
+        "CUSTOMER"
       ],
       "employees": [
         {
           "id": "234",
           "roles": [
-            "ROLE1"
+            "REPRESENTER",
+            "EMPLOYEE"
           ]
         }
       ]

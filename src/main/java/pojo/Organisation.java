@@ -7,7 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class Organisation extends Object {
+public class Organisation {
   @JsonProperty("name")
   private String name;
   @JsonProperty("roles")
@@ -24,5 +24,9 @@ public class Organisation extends Object {
     sb.append("Employees:" + "\n");
     sb.append(ConfigParser.listOfObjectsToString(employees) + "\n");
     return sb.toString();
+  }
+
+  public String getType(){
+    return "ORGANIZATION_TYPE";
   }
 }

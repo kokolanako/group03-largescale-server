@@ -1,127 +1,255 @@
 package server;
 
 import communication.Message;
+import pojo.Config;
+import pojo.Employee;
+import pojo.Organisation;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 
-public class ServerDistributor {
+public class ServerDistributor extends Thread {
 
-    private int PORT;
-    private ServerSocket serverSocket = null;
+  private int PORT;
+  private ServerSocket serverSocket = null;
 
-    private List<ServerThread> clients;
+  private List<ServerThread> clients;
 
-    public ServerDistributor(int port, List<ServerThread> clients) {
-        this.PORT = port;
-        this.clients = clients;
+  private Config configuration;
 
-        try {
-            serverSocket = new ServerSocket(PORT);
-        } catch (IOException e) {
-            e.printStackTrace();
+  public ServerDistributor(int port, List<ServerThread> clients, Config configuration) {
+    this.PORT = port;
+    this.clients = clients;
+    this.configuration = configuration;
 
-        }
+    try {
+      serverSocket = new ServerSocket(PORT);
+    } catch (IOException e) {
+      e.printStackTrace();
+
     }
+  }
 
-    public void start() {
-        while (true) {
-            Socket socket = null;
-            try {
-                socket = serverSocket.accept();
-            } catch (IOException e) {
-                System.out.println("I/O error: " + e);
-            }
-            // new thread for a client
-            ServerThread client = new ServerThread(socket, this);
-            client.start();
-        }
-    }
+  @Override
+  public void run() {
+    this.start();
+  }
 
-    public synchronized void deregister(String id) {
-        for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getID() == id) {
-                this.clients.get(i).interrupt();
-                this.clients.remove(i);
-                break;
-            }
-        }
+  public void start() {
+    while (true) {
+      Socket socket = null;
+      try {
+        socket = serverSocket.accept();
+      } catch (IOException e) {
+        System.out.println("I/O error: " + e);
+      }
+      // new thread for a client
+      ServerThread client = new ServerThread(socket, this);
+      client.start();
     }
+  }
 
-    public synchronized void deregister(String lastName, String firstName) {
-        for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
-                this.clients.remove(i);
-                break;
-            }
-        }
+  public synchronized void deregister(String id) {
+    for (int i = 0; i < this.clients.size(); i++) {
+      if (this.clients.get(i).getID() == id) {
+        this.clients.get(i).interrupt();
+        this.clients.remove(i);
+        break;
+      }
     }
+  }
 
-    public synchronized void register(ServerThread client) {
-        this.clients.add(client);
+  public synchronized void deregister(String lastName, String firstName) {
+    for (int i = 0; i < this.clients.size(); i++) {
+      if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
+        this.clients.remove(i);
+        break;
+      }
     }
+  }
 
-    public synchronized String retrieve(String id) {
-        for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getID().equals(id)) {
-                return this.clients.get(i).getPublicKey();
-            }
-        }
-        return null;
+  public synchronized void register(ServerThread client) {
+    this.clients.add(client);
+  }
+
+  public synchronized String retrieve(String id) {
+    for (int i = 0; i < this.clients.size(); i++) {
+      if (this.clients.get(i).getID().equals(id)) {
+        return this.clients.get(i).getPublicKey();
+      }
     }
-  public synchronized int getClientSize(){
+    return null;
+  }
+
+  public synchronized int getClientSize() {
     return this.clients.size();
   }
 
-    public synchronized String retrieve(String lastName, String firstName) {
-        for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
-                return this.clients.get(i).getPublicKey();
-            }
+  public synchronized String retrieve(String lastName, String firstName) {
+    for (int i = 0; i < this.clients.size(); i++) {
+      if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
+        return this.clients.get(i).getPublicKey();
+      }
+    }
+    return null;
+  }
+
+  public synchronized boolean sendMessageByID(String id, Message msg) {
+    for (int i = 0; i < this.clients.size(); i++) {
+      if (this.clients.get(i).getID().equals(id)) {
+        this.clients.get(i).sendMessage(msg);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public synchronized boolean sendMessage(String lastName, String firstName, Message msg) {
+    for (int i = 0; i < this.clients.size(); i++) {
+      if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
+        this.clients.get(i).sendMessage(msg);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean alreadyExists(String id, String lastName, String firstName) {
+    if (lastName != null && firstName != null) {
+
+      for (int i = 0; i < this.clients.size(); i++) {
+        if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
+          return true;
         }
-        return null;
+      }
+    }
+    if (!id.isEmpty()) {
+      for (int i = 0; i < this.clients.size(); i++) {
+        if (this.clients.get(i).getID().equals(id)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Authorisation
+   *
+   * @param msg
+   * @return
+   */
+  public synchronized Message sendBusinessMessage(Message msg) {
+    System.out.println("BUSINESS: " + msg);
+    Message answer = new Message();
+    String senderId = msg.getId();
+    String receiverId = msg.getIdReceiver();
+    //1. retrieve ids of both communicators from clients
+    if (receiverId == null) {
+      for (ServerThread client : clients) {
+        if (client.getLastName().equals(msg.getLastNameReceiver()) && client.getFirstName().equals(msg.getFirstNameReceiver())) {
+          receiverId = client.getID();
+          break;
+        }
+      }
+      List<String> senderRole = this.getRoles(senderId);
+      List<String> receiverRole = this.getRoles(receiverId);
+      boolean sameOrga = this.employedInTheSameOrganisation(senderId, receiverId);
+      //valid transfer if
+      if (sameOrga && this.validateTransferWithinOrganisation(senderRole, receiverRole)
+          || !sameOrga && this.validateTransferBetweenOrganisations(senderRole, receiverRole)) {
+
+        this.sendMessageByID(receiverId, msg);
+      } else {
+        //invalid message transfer due to roles of communication partners
+        answer.setMessage_ID(msg.getMessage_ID());
+        answer.setTYPE("ERROR");
+        answer.setMessageText("Cannot send message to " + msg.getIdReceiver() + " type: " + msg.getTYPE() + " Reason: invalid message transfer due to roles");
+        return answer;
+      }
+    }
+    if (receiverId == null) {
+      //unknown Receiver
+      answer.setMessage_ID(msg.getMessage_ID());
+      answer.setTYPE("ERROR");
+      answer.setMessageText("Cannot send message to " + msg.getIdReceiver() + " type: " + msg.getTYPE() + " Reason: Unknown receiver id");
+      return answer;
     }
 
-    public synchronized boolean sendMessageByID(String id, Message msg) {
-        for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getID().equals(id)) {
-                this.clients.get(i).sendMessage(msg);
-                return true;
-            }
+    return null;
+  }
+
+  private boolean validateTransferBetweenOrganisations(List<String> senderRole, List<String> receiverRole) {
+    boolean checkedRepresenter =false;
+    for (String roleSender : senderRole) {
+      if (roleSender.equals("REPRESENTER")) {
+        checkedRepresenter=true;
+        for (String roleReceiver : receiverRole) {
+          if (roleReceiver.equals("REPRESENTER")) {
+            return true;
+          }
         }
-        return false;
+      }else if(checkedRepresenter) {
+      break;
+      }
     }
+    return false;
+  }
 
-    public synchronized boolean sendMessage(String lastName, String firstName, Message msg) {
-        for (int i = 0; i < this.clients.size(); i++) {
-            if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
-                this.clients.get(i).sendMessage(msg);
-                return true;
-            }
+  private boolean validateTransferWithinOrganisation(List<String> senderRole, List<String> receiverRole) {
+    for (String roleSender : senderRole) {
+      for (String roleReceiver : receiverRole) {
+        if (roleSender.equals("REPRESENTER")) {
+          if (roleReceiver.equals("REPRESENTER") || roleReceiver.equals("EMPLOYEE") || roleReceiver.equals("ADMIN")) {
+            return true;
+          }
+        } else if (roleSender.equals("ADMIN")) {
+          if (roleReceiver.equals("REPRESENTER") || roleReceiver.equals("EMPLOYEE") || roleReceiver.equals("ADMIN")) {
+            return true;
+          }
+        } else if (roleSender.equals("EMPLOYEE")) {
+          if (roleReceiver.equals("EMPLOYEE") || roleReceiver.equals("ADMIN")) {
+            return true;
+          }
         }
-        return false;
+      }
     }
+    return false;
+  }
 
-    public boolean alreadyExists(String id, String lastName, String firstName) {
-        if (lastName != null && firstName != null) {
-
-            for (int i = 0; i < this.clients.size(); i++) {
-                if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
-                    return true;
-                }
-            }
+  private List<String> getRoles(String senderId) {
+    for (Organisation org : this.configuration.getOrganizations()) {
+      for (Employee employee : org.getEmployees()) {
+        if (employee.getId().equals(senderId)) {
+          return employee.getRoles();
         }
-        if (!id.isEmpty()) {
-            for (int i = 0; i < this.clients.size(); i++) {
-                if (this.clients.get(i).getID().equals(id)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+      }
     }
+    return null;
+  }
 
+  private boolean employedInTheSameOrganisation(String senderId, String receiverId) {
 
+    Organisation orga = null;
+    outer:
+    for (Organisation org : this.configuration.getOrganizations()) {
+      for (Employee employee : org.getEmployees()) {
+        if (employee.getId().equals(senderId)) {
+          orga = org;
+          break outer;
+        }
+      }
+    }
+    if (orga == null) {
+      return false;
+    }
+    for (Employee employee : orga.getEmployees()) {
+      if (employee.getId().equals(receiverId)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

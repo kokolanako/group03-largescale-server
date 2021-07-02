@@ -1,15 +1,9 @@
 import io.ConfigParser;
 import pojo.Config;
-import server.DistributorRunner;
 import server.ServerDistributor;
 import server.ServerThread;
 
-import javax.net.ssl.SSLServerSocketFactory;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +19,7 @@ public class ApplicationStarter {
         int[] ports = {13370, 13371};
         //one Thread per Port
         for (int port : ports) {
-            Thread thread = new Thread(new DistributorRunner(port,clients));
+            Thread thread = new Thread(new ServerDistributor(port,clients, parsedConfig));
             thread.start();
         }
         System.out.println("server starts");
