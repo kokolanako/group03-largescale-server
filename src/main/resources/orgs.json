@@ -4,13 +4,13 @@
       "name": "Sparkasse",
       "roles": [
         {
-          "ROLE1": "customer"
+          "ROLE1": "admin",
+          "ROLE2": "costumer"
         }
       ],
-      "accounts": [
+      "employees": [
         {
-          "iban": "DE43435234235346934",
-          "name": "Bastian",
+          "id": "234",
           "roles": [
             "ROLE1"
           ]

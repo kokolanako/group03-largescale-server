@@ -1,3 +1,5 @@
+import io.ConfigParser;
+import pojo.Config;
 import server.DistributorRunner;
 import server.ServerDistributor;
 import server.ServerThread;
@@ -15,6 +17,9 @@ import java.util.List;
 public class ApplicationStarter {
 
     public static void main(String[] args) throws IOException {
+
+      Config parsedConfig = ConfigParser.parse("orgs.json");
+      System.out.println(parsedConfig);
         //every client is listened in an individual thread
         List<ServerThread> clients= Collections.synchronizedList(new ArrayList<>());;
         int[] ports = {13370, 13371};
@@ -25,13 +30,5 @@ public class ApplicationStarter {
         }
         System.out.println("server starts");
     }
-//  static int k=0;
-//public static void main(String[] args) {
-//  System.out.println(k);
-//  int g= incr();
-//  System.out.println(g);
-//}
-//static int incr(){
-//  return ++k;
-//}
+
 }
