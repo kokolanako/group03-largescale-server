@@ -7,6 +7,7 @@
  */
 package pojo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.ConfigParser;
 import lombok.Data;
 
@@ -17,8 +18,11 @@ import java.util.List;
  */
 @Data
 public class Employee {
+
+  @JsonProperty("id")
   private int id;
-  private List<Role> roles;
+  @JsonProperty("roles")
+  private List<String> roles;
 
   @Override
   public String toString(){

@@ -2,14 +2,9 @@ package io;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import pojo.Config;
-import pojo.Organisation;
-import pojo.Role;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ConfigParser {
