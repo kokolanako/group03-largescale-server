@@ -38,7 +38,6 @@ public class ServerDistributor {
         }
     }
 
-
     public synchronized void deregister(String id) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getID() == id) {
@@ -52,12 +51,14 @@ public class ServerDistributor {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
                 this.clients.remove(i);
+                break;
             }
         }
     }
 
     public synchronized void register(ServerThread client) {
         this.clients.add(client);
+      System.out.println("SIZE "+this.clients.size());
     }
 
     public synchronized String retrieve(String id) {
@@ -68,6 +69,9 @@ public class ServerDistributor {
         }
         return null;
     }
+  public synchronized int getClientSize(){
+    return this.clients.size();
+  }
 
     public synchronized String retrieve(String lastName, String firstName) {
         for (int i = 0; i < this.clients.size(); i++) {

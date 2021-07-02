@@ -29,7 +29,6 @@ public class ServerThread extends Thread {
             dataInputStream = new ObjectInputStream(this.client.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
-            this.close();
             this.deregister();
         }
 
@@ -61,13 +60,14 @@ public class ServerThread extends Thread {
         this.close();
     }
 
+
     @Override
     public void run() {
         while (true) {
             try {
                 if (this.client != null && !this.client.isClosed()) {
                     Message message = (Message) this.dataInputStream.readObject();
-                    System.out.println(message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
+                    System.out.println("Received message: "+message.getTYPE() + " " + message.getFirstName() + " " + message.getLastName()
                             + " " + message.getId() + " " + message.getMessageText());
                     this.readObjectAndTakeAction(message);
                     continue;
@@ -124,7 +124,8 @@ public class ServerThread extends Thread {
                 this.distributor.register(this);
                 this.sendMessageToAnotherClient(msg.getMessage_ID(), "OK",
                         "Client " + this.firstName + " " + lastName + " registered", null); //else ERROR +msg
-                System.out.println("Server registered " + msg.getId());
+                System.out.println("Server registered " + msg.getId()+" size "+this.distributor.getClientSize());
+
             }
 
         } else if (msg.getTYPE().equals("ASK_PUBLIC_KEY")) {
