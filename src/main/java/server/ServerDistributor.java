@@ -45,6 +45,7 @@ public class ServerDistributor {
             if (this.clients.get(i).getID() == id) {
                 this.clients.get(i).interrupt();
                 this.clients.remove(i);
+                break;
             }
         }
     }
@@ -60,7 +61,6 @@ public class ServerDistributor {
 
     public synchronized void register(ServerThread client) {
         this.clients.add(client);
-      System.out.println("SIZE "+this.clients.size());
     }
 
     public synchronized String retrieve(String id) {

@@ -42,6 +42,7 @@ public class Message implements Serializable {
 
   @Override
   public String toString(){
-    return "Message: "+TYPE+ " id: "+id+" firstName: "+firstName+" lastName "+lastName+" messageText "+messageText+" msg id "+message_ID;
+    return "Message: "+TYPE+ " id: "+id+" firstName: "+firstName+" lastName "+lastName+" messageText "+messageText+" msg id "+message_ID
+        +" to receiver "+firstNameReceiver+" "+lastNameReceiver;
   }
 }

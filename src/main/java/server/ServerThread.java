@@ -67,8 +67,9 @@ public class ServerThread extends Thread {
       try {
         if (this.client != null && !this.client.isClosed()) {
           Message message = (Message) this.dataInputStream.readObject();
-          System.out.println("Received message: " + message.toString());
+          System.out.println("RECEIVED "+this.toString()+" MESSAGE " + message.toString());
           Message answer = this.readObjectAndTakeAction(message);
+//          System.out.println("CREATED MESSAGE "+answer);
           this.sendMessage(answer);
           continue;
 
@@ -97,15 +98,14 @@ public class ServerThread extends Thread {
       e.printStackTrace();
     }
     if (sendMsg.getTYPE().equals("CLOSE_CONNECTION")) {
-      System.out.println("Client " + this.ID + " is disconnected.");
+      System.out.println("Client " + this.toString() + " is disconnected.");
       this.deregister();
     }
-    System.out.println("SENT " + sendMsg);
+    System.out.println("SEND: "+this.toString()+" SENTS " + sendMsg);
 
   }
 
   private Message readObjectAndTakeAction(Message msg) {
-    System.out.println("READ OBJECT " + msg);
     Message answer = new Message();
     if (msg.getTYPE().equals("REGISTER")) {
       if (this.distributor.alreadyExists(msg.getId(), msg.getLastName(), msg.getFirstName())) {
@@ -114,9 +114,15 @@ public class ServerThread extends Thread {
         answer.setMessageText("Client already exist");
         return answer;
       } else {
-        this.register(msg.getId(), msg.getLastName(), msg.getFirstName(), msg.getPublicKey());
+        boolean registered=this.register(msg.getId(), msg.getLastName(), msg.getFirstName(), msg.getPublicKey());
+        if(!registered){
+          answer.setMessage_ID(msg.getMessage_ID());
+          answer.setTYPE("ERROR");
+          answer.setMessageText("Client " + this.firstName + " " + lastName + " is not registered due to missing publicKey.");
+          return answer;
+        }
         this.distributor.register(this);
-        System.out.println("Server registered " + msg.getId() + " size " + this.distributor.getClientSize());
+        System.out.println("REGISTERED" + msg.getId() + " size " + this.distributor.getClientSize());
         answer.setMessage_ID(msg.getMessage_ID());
         answer.setTYPE("OK");
         answer.setMessageText("Client " + this.firstName + " " + lastName + " registered");
@@ -158,12 +164,12 @@ public class ServerThread extends Thread {
       if (msg.getFirstNameReceiver() != null && msg.getLastNameReceiver() != null) {
         boolean successful = this.distributor.sendMessage(msg.getLastNameReceiver(), msg.getFirstNameReceiver(), msg);
         if (successful) {
-//          answer.setMessage_ID(msg.getMessage_ID());
-//          answer.setTYPE("OK");
-//          answer.setMessageText("Message sent to "
-//              + msg.getFirstNameReceiver() + " " + msg.getLastNameReceiver());
-//          return answer;
-          return null;
+          answer.setMessage_ID(msg.getMessage_ID());
+          answer.setTYPE("OK");
+          answer.setMessageText("Message sent to "
+              + msg.getFirstNameReceiver() + " " + msg.getLastNameReceiver());
+          return answer;
+//          return null;
         } else {
           answer.setMessage_ID(msg.getMessage_ID());
           answer.setTYPE("ERROR");
@@ -174,43 +180,11 @@ public class ServerThread extends Thread {
       } else {
         boolean successful = this.distributor.sendMessageByID(msg.getIdReceiver(), msg);
         if (successful) {
-//          answer.setMessage_ID(msg.getMessage_ID());
-//          answer.setTYPE("OK");
-//          answer.setMessageText("Message sent to " + msg.getIdReceiver());
-//          return answer;
-          return null;
-        } else {
           answer.setMessage_ID(msg.getMessage_ID());
-          answer.setTYPE("ERROR");
-          answer.setMessageText("Can not send message to " + msg.getIdReceiver());
+          answer.setTYPE("OK");
+          answer.setMessageText("Message sent to " + msg.getIdReceiver());
           return answer;
-        }
-      }
-    } else if (msg.getTYPE().equals("MESSAGE_RECEIVED")) {
-      if (msg.getFirstNameReceiver() != null && msg.getLastNameReceiver() != null) {
-        boolean successful = this.distributor.sendMessage(msg.getLastNameReceiver(), msg.getFirstNameReceiver(), msg);
-        if (successful) {
-//          answer.setMessage_ID(msg.getMessage_ID());
-//          answer.setTYPE("OK");
-//          answer.setMessageText("Message sent to "
-//              + msg.getFirstNameReceiver() + " " + msg.getLastNameReceiver());
-//          return answer;
-          return null;
-        } else {
-          answer.setMessage_ID(msg.getMessage_ID());
-          answer.setTYPE("ERROR");
-          answer.setMessageText("Can not send message to "
-              + msg.getFirstNameReceiver() + " " + msg.getLastNameReceiver());
-          return answer;
-        }
-      } else {
-        boolean successful = this.distributor.sendMessageByID(msg.getIdReceiver(), msg);
-        if (successful) {
-//          answer.setMessage_ID(msg.getMessage_ID());
-//          answer.setTYPE("OK");
-//          answer.setMessageText("Message sent to " + msg.getIdReceiver());
-//          return answer;
-          return null;
+//          return null;
         } else {
           answer.setMessage_ID(msg.getMessage_ID());
           answer.setTYPE("ERROR");
@@ -228,10 +202,19 @@ public class ServerThread extends Thread {
     return null;
   }
 
-  public void register(String id, String lastName, String firstName, String publicKey) {
+  public boolean register(String id, String lastName, String firstName, String publicKey) {
+    if (publicKey == null){
+      return false;
+    }
     this.ID = id;
     this.lastName = lastName;
     this.firstName = firstName;
     this.publicKey = publicKey;
+    return true;
+  }
+
+  @Override
+  public String toString(){
+    return "Client: "+this.firstName+" "+this.lastName;
   }
 }
