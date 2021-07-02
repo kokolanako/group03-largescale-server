@@ -2,7 +2,7 @@ package server;
 
 import communication.Message;
 import pojo.Config;
-import pojo.Employee;
+import pojo.PersonDTO;
 import pojo.Organisation;
 
 import java.io.IOException;
@@ -12,24 +12,28 @@ import java.util.*;
 
 public class ServerDistributor extends Thread {
 
-  private int PORT;
-  private ServerSocket serverSocket = null;
+  private int[] PORTS;
+  private List<ServerSocket> serverSockets = null;
 
   private List<ServerThread> clients;
 
   private Config configuration;
 
-  public ServerDistributor(int port, List<ServerThread> clients, Config configuration) {
-    this.PORT = port;
+  public ServerDistributor(int[] ports, List<ServerThread> clients, Config configuration) {
+    this.PORTS = ports;
     this.clients = clients;
     this.configuration = configuration;
+    this.serverSockets =new ArrayList<>(ports.length);
+    for(int port: this.PORTS){
 
-    try {
-      serverSocket = new ServerSocket(PORT);
-    } catch (IOException e) {
-      e.printStackTrace();
+      try {
+        this.serverSockets.add( new ServerSocket(port));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
 
     }
+
   }
 
   @Override
@@ -38,17 +42,24 @@ public class ServerDistributor extends Thread {
   }
 
   public void start() {
-    while (true) {
-      Socket socket = null;
-      try {
-        socket = serverSocket.accept();
-      } catch (IOException e) {
-        System.out.println("I/O error: " + e);
-      }
-      // new thread for a client
-      ServerThread client = new ServerThread(socket, this);
-      client.start();
+    for(ServerSocket serverSocket:this.serverSockets){
+      Thread startAcceptionClients=new Thread(()->{
+        while (true) {
+          Socket socket = null;
+          try {
+            socket = serverSocket.accept();
+          } catch (IOException e) {
+            System.out.println("I/O error: " + e);
+          }
+          // new thread for a client
+          ServerThread client = new ServerThread(socket, this);
+          client.start();
+        }
+      });
+      startAcceptionClients.start();
     }
+
+
   }
 
   public synchronized void deregister(String id) {
@@ -154,8 +165,21 @@ public class ServerDistributor extends Thread {
           break;
         }
       }
+      if (receiverId == null) {
+        //unknown Receiver
+        answer.setMessage_ID(msg.getMessage_ID());
+        answer.setTYPE("ERROR");
+        answer.setMessageText("Cannot send message to " + msg.getIdReceiver() + " type: " + msg.getTYPE() + " Reason: Unknown receiver id");
+        return answer;
+      }
       List<String> senderRole = this.getRoles(senderId);
       List<String> receiverRole = this.getRoles(receiverId);
+      if(senderRole == null || receiverRole==null){
+        answer.setMessage_ID(msg.getMessage_ID());
+        answer.setTYPE("ERROR");
+        answer.setMessageText("Cannot send message to " + msg.getIdReceiver() + " type: " + msg.getTYPE() + " Reason: Unknown roles.");
+        return answer;
+      }
       boolean sameOrga = this.employedInTheSameOrganisation(senderId, receiverId);
       //valid transfer if
       if (sameOrga && this.validateTransferWithinOrganisation(senderRole, receiverRole)
@@ -170,13 +194,7 @@ public class ServerDistributor extends Thread {
         return answer;
       }
     }
-    if (receiverId == null) {
-      //unknown Receiver
-      answer.setMessage_ID(msg.getMessage_ID());
-      answer.setTYPE("ERROR");
-      answer.setMessageText("Cannot send message to " + msg.getIdReceiver() + " type: " + msg.getTYPE() + " Reason: Unknown receiver id");
-      return answer;
-    }
+
 
     return null;
   }
@@ -221,7 +239,7 @@ public class ServerDistributor extends Thread {
 
   private List<String> getRoles(String senderId) {
     for (Organisation org : this.configuration.getOrganizations()) {
-      for (Employee employee : org.getEmployees()) {
+      for (PersonDTO employee : org.getEmployees()) {
         if (employee.getId().equals(senderId)) {
           return employee.getRoles();
         }
@@ -235,7 +253,7 @@ public class ServerDistributor extends Thread {
     Organisation orga = null;
     outer:
     for (Organisation org : this.configuration.getOrganizations()) {
-      for (Employee employee : org.getEmployees()) {
+      for (PersonDTO employee : org.getEmployees()) {
         if (employee.getId().equals(senderId)) {
           orga = org;
           break outer;
@@ -245,11 +263,16 @@ public class ServerDistributor extends Thread {
     if (orga == null) {
       return false;
     }
-    for (Employee employee : orga.getEmployees()) {
+    for (PersonDTO employee : orga.getEmployees()) {
       if (employee.getId().equals(receiverId)) {
         return true;
       }
     }
     return false;
+  }
+
+  public Message transactionMessage(Message msg) {
+    //TODO
+    return null;
   }
 }

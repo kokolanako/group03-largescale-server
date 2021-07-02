@@ -193,7 +193,15 @@ public class ServerThread extends Thread {
 
     } else if (msg.getTYPE().equals("MESSAGE_BUSINESS")) {
       return this.distributor.sendBusinessMessage(msg);
-    } else if (msg.getTYPE().equals("CLOSE_CONNECTION")) {
+    }
+    else if (msg.getTYPE().equals("TRANSACTION_SUB")) {
+      return this.distributor.transactionMessage(msg);
+    }
+    else if (msg.getTYPE().equals("TRANSACTION_ADD")) {
+      return this.distributor.transactionMessage(msg);
+    }
+
+    else if (msg.getTYPE().equals("CLOSE_CONNECTION")) {
       answer.setMessage_ID(msg.getMessage_ID());
       answer.setTYPE("CLOSE_CONNECTION");
       answer.setMessageText("Close and deregister Client from server");

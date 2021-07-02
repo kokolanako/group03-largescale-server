@@ -10,9 +10,16 @@
       ],
       "employees": [
         {
-          "id": "234",
+          "id": "6398C613619E4DCA88220ACA49603D87",
           "roles": [
-            "REPRESENTER",
+
+            "EMPLOYEE"
+          ]
+        },
+        {
+          "id": "5856e6cd-0da6-4573-9a04-cbb11f5e68d3",
+          "roles": [
+
             "EMPLOYEE"
           ]
         }

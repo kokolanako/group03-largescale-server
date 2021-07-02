@@ -40,6 +40,21 @@ public class Message implements Serializable {
   @Getter
   private String idReceiver;
 
+  @Setter
+  @Getter
+  private String ibanFrom;
+  @Setter
+  @Getter
+  private String ibanTo;
+
+  @Setter
+  @Getter
+  private long amount; //TODO in CENTS?
+
+  @Setter
+  @Getter
+  private String typeInstance;
+
   @Override
   public String toString(){
     return "Message: "+TYPE+ " id: "+id+" firstName: "+firstName+" lastName "+lastName+" messageText "+messageText+" msg id "+message_ID

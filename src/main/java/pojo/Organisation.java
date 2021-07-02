@@ -13,7 +13,8 @@ public class Organisation {
   @JsonProperty("roles")
   private List<String> roles;
   @JsonProperty("employees")
-  private List<Employee> employees;
+  private List<PersonDTO> employees;
+
 
   @Override
   public String toString() {

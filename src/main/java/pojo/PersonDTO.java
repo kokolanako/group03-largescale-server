@@ -17,7 +17,7 @@ import java.util.List;
  *@author pmrachkovskaya
  */
 @Data
-public class Employee {
+public class PersonDTO {
 
   @JsonProperty("id")
   private String id;
