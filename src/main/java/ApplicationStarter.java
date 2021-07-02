@@ -19,8 +19,7 @@ public class ApplicationStarter {
         List<ServerThread> clients= Collections.synchronizedList(new ArrayList<>());;
         int[] ports = {13370, 13371};
         //one Thread per Port
-        for (int port : ports
-        ) {
+        for (int port : ports) {
             Thread thread = new Thread(new DistributorRunner(port,clients));
             thread.start();
         }
