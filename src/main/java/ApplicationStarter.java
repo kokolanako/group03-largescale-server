@@ -25,5 +25,13 @@ public class ApplicationStarter {
         }
         System.out.println("server starts");
     }
-
+//  static int k=0;
+//public static void main(String[] args) {
+//  System.out.println(k);
+//  int g= incr();
+//  System.out.println(g);
+//}
+//static int incr(){
+//  return ++k;
+//}
 }

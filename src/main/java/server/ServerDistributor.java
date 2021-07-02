@@ -1,5 +1,7 @@
 package server;
 
+import communication.Message;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -82,20 +84,20 @@ public class ServerDistributor {
         return null;
     }
 
-    public synchronized boolean sendMessage(String id, String encryptedMessage, ServerThread sender) {
+    public synchronized boolean sendMessageByID(String id, Message msg) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getID().equals(id)) {
-                this.clients.get(i).sendMessageToAnotherClient(0, "MESSAGE", encryptedMessage, sender);
+                this.clients.get(i).sendMessage(msg);
                 return true;
             }
         }
         return false;
     }
 
-    public synchronized boolean sendMessage(String lastName, String firstName, String encryptedMessage, ServerThread sender) {
+    public synchronized boolean sendMessage(String lastName, String firstName, Message msg) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
-                this.clients.get(i).sendMessageToAnotherClient(0, "MESSAGE", encryptedMessage, sender);
+                this.clients.get(i).sendMessage(msg);
                 return true;
             }
         }
