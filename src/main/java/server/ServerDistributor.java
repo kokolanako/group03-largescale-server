@@ -39,7 +39,7 @@ public class ServerDistributor {
     }
 
 
-    public void deregister(String id) {
+    public synchronized void deregister(String id) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getID() == id) {
                 this.clients.get(i).interrupt();
@@ -48,7 +48,7 @@ public class ServerDistributor {
         }
     }
 
-    public void deregister(String lastName, String firstName) {
+    public synchronized void deregister(String lastName, String firstName) {
         for (int i = 0; i < this.clients.size(); i++) {
             if (this.clients.get(i).getLastName().equals(lastName) && this.clients.get(i).getFirstName().equals(firstName)) {
                 this.clients.remove(i);

@@ -5,6 +5,7 @@ import lombok.Getter;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class ServerThread extends Thread {
     private Socket client;
@@ -74,11 +75,17 @@ public class ServerThread extends Thread {
                 } else {
                     break;
                 }
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
             }
-            this.deregister();
+            catch(SocketException e1){
+
+            }
+            catch (IOException | ClassNotFoundException e) {
+              e.printStackTrace();
+            }
+
+          break;
         }
+      this.deregister();
     }
 
     public void sendMessageToAnotherClient(int msg_id, String type, String msg, ServerThread sender) {
