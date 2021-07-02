@@ -1,0 +1,21 @@
+{
+  "organizations": [
+    {
+      "name": "Sparkasse",
+      "roles": [
+        {
+          "ROLE1": "customer"
+        }
+      ],
+      "accounts": [
+        {
+          "iban": "DE43435234235346934",
+          "name": "Bastian",
+          "roles": [
+            "ROLE1"
+          ]
+        }
+      ]
+    }
+  ]
+}
