@@ -27,8 +27,8 @@ public class Employee {
   @Override
   public String toString(){
     StringBuilder sb=new StringBuilder();
-    sb.append("Employee: "+this.id+"\n");
-    sb.append("Roles:"+"\n");
+    sb.append("-Employee: "+this.id+"\n");
+    sb.append("-Roles:"+"\n");
     sb.append(ConfigParser.listOfObjectsToString(roles));
     return sb.toString();
   }

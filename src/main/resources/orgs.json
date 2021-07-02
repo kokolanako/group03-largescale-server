@@ -3,10 +3,8 @@
     {
       "name": "Sparkasse",
       "roles": [
-        {
-          "ROLE1": "admin",
-          "ROLE2": "costumer"
-        }
+          "ROLE1",
+          "ROLE2"
       ],
       "employees": [
         {
