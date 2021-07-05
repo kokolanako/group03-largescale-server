@@ -279,9 +279,7 @@ public class ServerDistributor extends Thread {
   }
 
   public synchronized Message transactionMessage(Message msg) {
-    //TODO Andrei
 
-    //add Message to BlockingQueue waitingAnswersFromBank
     for(ServerThread bank:this.organisations){
       if(bank.getID().equals(msg.getId())){
         bank.sendMessage(msg);
