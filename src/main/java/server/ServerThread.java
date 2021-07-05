@@ -224,12 +224,19 @@ public class ServerThread extends Thread {
     else if (msg.getTYPE().equals("TRANSACTION_ADD")) {
       return this.distributor.transactionMessage(msg);
     }
-    else if (msg.getTYPE().equals("TRANSACTION_SUB_ANSWER")) {
+    else if (msg.getTYPE().equals("TRANSACTION_SUB_OK")) {
       return this.distributor.transactionMessageAnswer(msg);
     }
-    else if (msg.getTYPE().equals("TRANSACTION_ADD_ANSWER")) {
+    else if (msg.getTYPE().equals("TRANSACTION_ADD_OK")) {
       return this.distributor.transactionMessageAnswer(msg);
     }
+    else if (msg.getTYPE().equals("TRANSACTION_SUB_ERROR")) {
+      return this.distributor.transactionMessageAnswer(msg);
+    }
+    else if (msg.getTYPE().equals("TRANSACTION_ADD_ERROR")) {
+      return this.distributor.transactionMessageAnswer(msg);
+    }
+
 
     else if (msg.getTYPE().equals("CLOSE_CONNECTION")) {
       answer.setMessage_ID(msg.getMessage_ID());
