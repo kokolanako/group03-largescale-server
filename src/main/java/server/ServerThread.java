@@ -13,7 +13,7 @@ public class ServerThread extends Thread {
   @Getter
   private String ID;
   @Getter
-  private String firstName;
+  private String firstName; //null, if it is Orga
   @Getter
   private String lastName;
   @Getter
@@ -55,7 +55,12 @@ public class ServerThread extends Thread {
       this.distributor.deregister(this.lastName, this.firstName);
 
     } else {
-      this.distributor.deregister(this.ID);
+      if(this.lastName!=null && this.firstName==null){ //organisation
+        this.distributor.deregisterOrganisation(this.ID);
+      }else{
+
+        this.distributor.deregister(this.ID);
+      }
     }
     this.close();
   }
@@ -121,12 +126,31 @@ public class ServerThread extends Thread {
           answer.setMessageText("Client " + this.firstName + " " + lastName + " is not registered due to missing publicKey.");
           return answer;
         }
-        this.distributor.register(this);
-        System.out.println("REGISTERED" + msg.getId() + " size " + this.distributor.getClientSize());
-        answer.setMessage_ID(msg.getMessage_ID());
-        answer.setTYPE("OK");
-        answer.setMessageText("Client " + this.firstName + " " + lastName + " registered");
-        return answer;
+        boolean isOrganisation = msg.getFirstName() == null;
+        boolean orgaAlreadyExists=this.distributor.orgaAlreadyExists(this.ID);
+        if (isOrganisation){
+          if(orgaAlreadyExists){
+            answer.setMessage_ID(msg.getMessage_ID());
+            answer.setTYPE("ERROR");
+            answer.setMessageText("Client organisation with" + lastName + " already exists.");
+            return answer;
+          }
+          this.distributor.registerOrganisation(this);
+          System.out.println("REGISTERED" + msg.getId() + " size " + this.distributor.getClientSize());
+          answer.setMessage_ID(msg.getMessage_ID());
+          answer.setTYPE("OK");
+          answer.setMessageText("Client of type organisation"+ lastName + " is registered.");
+          return answer;
+        }else{
+
+          this.distributor.register(this);
+          System.out.println("REGISTERED" + msg.getId() + " size " + this.distributor.getClientSize());
+          answer.setMessage_ID(msg.getMessage_ID());
+          answer.setTYPE("OK");
+          answer.setMessageText("Client " + this.firstName + " " + lastName + " registered");
+          return answer;
+        }
+
       }
 
     } else if (msg.getTYPE().equals("ASK_PUBLIC_KEY")) {
@@ -199,6 +223,12 @@ public class ServerThread extends Thread {
     }
     else if (msg.getTYPE().equals("TRANSACTION_ADD")) {
       return this.distributor.transactionMessage(msg);
+    }
+    else if (msg.getTYPE().equals("TRANSACTION_SUB_ANSWER")) {
+      return this.distributor.transactionMessageAnswer(msg);
+    }
+    else if (msg.getTYPE().equals("TRANSACTION_ADD_ANSWER")) {
+      return this.distributor.transactionMessageAnswer(msg);
     }
 
     else if (msg.getTYPE().equals("CLOSE_CONNECTION")) {

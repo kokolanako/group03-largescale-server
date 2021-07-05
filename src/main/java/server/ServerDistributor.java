@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class ServerDistributor extends Thread {
 
@@ -17,6 +19,10 @@ public class ServerDistributor extends Thread {
 
   private List<ServerThread> clients;
 
+  private List<ServerThread> organisations;
+
+  private BlockingQueue<Message> waitingAnswersFromBank=new LinkedBlockingQueue<>();
+
   private Config configuration;
 
   public ServerDistributor(int[] ports, List<ServerThread> clients, Config configuration) {
@@ -24,6 +30,7 @@ public class ServerDistributor extends Thread {
     this.clients = clients;
     this.configuration = configuration;
     this.serverSockets =new ArrayList<>(ports.length);
+    this.organisations = Collections.synchronizedList(new ArrayList<>());
     for(int port: this.PORTS){
 
       try {
@@ -64,7 +71,7 @@ public class ServerDistributor extends Thread {
 
   public synchronized void deregister(String id) {
     for (int i = 0; i < this.clients.size(); i++) {
-      if (this.clients.get(i).getID() == id) {
+      if (this.clients.get(i).getID().equals(id)) {
         this.clients.get(i).interrupt();
         this.clients.remove(i);
         break;
@@ -271,8 +278,54 @@ public class ServerDistributor extends Thread {
     return false;
   }
 
-  public Message transactionMessage(Message msg) {
-    //TODO
-    return null;
+  public synchronized Message transactionMessage(Message msg) {
+    //TODO Andrei
+
+    //add Message to BlockingQueue waitingAnswersFromBank
+    for(ServerThread bank:this.organisations){
+      if(bank.getID().equals(msg.getId())){
+        bank.sendMessage(msg);
+      }
+    }
+    return null; //must be null!!!!!! dont change!
+  }
+
+  public synchronized void registerOrganisation(ServerThread serverThread) {
+    this.organisations.add(serverThread);
+  }
+
+  public void deregisterOrganisation(String id) {
+    for (int i = 0; i < this.organisations.size(); i++) {
+      if (this.organisations.get(i).getID().equals(id)) {
+        this.organisations.get(i).interrupt();
+        this.organisations.remove(i);
+        break;
+      }
+    }
+  }
+
+  public synchronized boolean orgaAlreadyExists(String id) {
+    for (int i = 0; i < this.organisations.size(); i++) {
+      if (this.organisations.get(i).getID().equals(id)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * bank answers to central server
+   *
+   * idReceiver is filled with clientID that sent initially the transaction request
+   * @param msg
+   * @return
+   */
+  public synchronized  Message transactionMessageAnswer(Message msg) {
+    for (ServerThread client:  this.clients) {
+      if (client.getID().equals(msg.getIdReceiver())) {
+        client.sendMessage(msg);
+      }
+    }
+    return null; //remains null!!
   }
 }
