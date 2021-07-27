@@ -286,14 +286,15 @@ public class ServerDistributor extends Thread {
     return false;
   }
 
-  public synchronized Message transactionMessageToOrganisation(Message msg) {
+  public synchronized boolean transactionMessageToOrganisation(Message msg) {
 
     for (ServerThread bank : this.organisations) {
-      if (bank.getID().equals(msg.getId())) {
+      if (bank.getID().equals(msg.getIdReceiver())) {
         bank.sendMessage(msg);
+        return true;
       }
     }
-    return null; //must be null!!!!!! dont change!
+    return false; //must be null!!!!!! dont change!
   }
 
   public synchronized void registerOrganisation(ServerThread serverThread) {

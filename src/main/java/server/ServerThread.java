@@ -226,12 +226,26 @@ public class ServerThread extends Thread {
               answer.setMessageText("You have no right to send business message due to no role.");
               return answer;
             }else{
+              System.out.println("++++++++ "+answerBusiness);
               return answerBusiness;
             }
         } else if (msg.getTYPE().equals("TRANSACTION_SUB")) {
-            return this.distributor.transactionMessageToOrganisation(msg);
+          System.out.println("TRANSACTION "+msg);
+           boolean transferred= this.distributor.transactionMessageToOrganisation(msg);
+            if(!transferred ){
+              msg.setTYPE("TRANSACTION_SUB_ERROR");
+              msg.setMessageText("No organisation with id "+msg.getIdReceiver()+" is detected at central server.");
+              return msg;
+            }
+            return null;
         } else if (msg.getTYPE().equals("TRANSACTION_ADD")) {
-            return this.distributor.transactionMessageToOrganisation(msg);
+          boolean transferred=  this.distributor.transactionMessageToOrganisation(msg);
+          if(!transferred ){
+            msg.setTYPE("TRANSACTION_ADD_ERROR");
+            msg.setMessageText("No organisation with id "+msg.getIdReceiver()+" is detected at central server.");
+            return msg;
+          }
+          return null;
         } else if (msg.getTYPE().equals("TRANSACTION_SUB_OK")) {
             return this.distributor.transactionMessageAnswerToClient(msg);
         } else if (msg.getTYPE().equals("TRANSACTION_ADD_OK")) {
