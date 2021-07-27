@@ -24,8 +24,5 @@ public class PersonDTO {
     return sb.toString();
   }
 
-  public String getType() {
-    return "EMPLOYEE_TYPE";
-  }
 
 }

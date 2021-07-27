@@ -1,12 +1,8 @@
 import io.ConfigParser;
 import pojo.Config;
 import server.ServerDistributor;
-import server.ServerThread;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class ApplicationStarter {
 
