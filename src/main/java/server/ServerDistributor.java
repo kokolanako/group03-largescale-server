@@ -24,10 +24,11 @@ public class ServerDistributor extends Thread {
 
     private Config configuration;
 
-    public ServerDistributor(int[] ports, List<ServerThread> clients, Config configuration) {
+    public ServerDistributor(int[] ports,  Config configuration) {
         this.PORTS = ports;
-        this.clients = clients;
-        this.configuration = configuration;
+        this.clients =Collections.synchronizedList(new ArrayList<>());
+
+      this.configuration = configuration;
         this.organisations = Collections.synchronizedList(new ArrayList<>());
 
     }
