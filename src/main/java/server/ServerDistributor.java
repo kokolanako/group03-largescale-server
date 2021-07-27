@@ -11,8 +11,6 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class ServerDistributor extends Thread {
 
@@ -22,7 +20,6 @@ public class ServerDistributor extends Thread {
 
   private List<ServerThread> organisations;
 
-  private BlockingQueue<Message> waitingAnswersFromBank = new LinkedBlockingQueue<>();
 
   private Config configuration;
 

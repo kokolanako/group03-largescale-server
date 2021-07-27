@@ -2,8 +2,6 @@ import io.ConfigParser;
 import pojo.Config;
 import server.ServerDistributor;
 
-import java.io.IOException;
-
 public class ApplicationStarter {
 
   public static void main(String[] args)  {
