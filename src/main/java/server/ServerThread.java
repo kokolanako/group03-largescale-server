@@ -29,7 +29,7 @@ public class ServerThread extends Thread {
             dataInputStream = new ObjectInputStream(this.client.getInputStream());
         } catch (IOException e) {
             e.printStackTrace();
-            this.deregister();
+            this.close();
         }
 
     }
