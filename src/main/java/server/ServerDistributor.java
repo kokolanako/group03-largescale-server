@@ -32,7 +32,6 @@ public class ServerDistributor extends Thread {
         this.serverSockets = new ArrayList<>(ports.length);
         this.organisations = Collections.synchronizedList(new ArrayList<>());
         for (int port : this.PORTS) {
-
             try {
                 this.serverSockets.add(new ServerSocket(port));
             } catch (IOException e) {

@@ -10,19 +10,20 @@ import java.util.List;
 
 public class ApplicationStarter {
 
-    public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException {
 
-      Config parsedConfig = ConfigParser.parse("orgs.json");
-      System.out.println(parsedConfig);
-        //every client is listened in an individual thread
-        List<ServerThread> clients= Collections.synchronizedList(new ArrayList<>());;
-        int[] ports = {13370, 13371};
-        //one Thread per Port
+    Config parsedConfig = ConfigParser.parse("orgs.json");
+    System.out.println(parsedConfig);
+    //every client is listened in an individual thread
+    List<ServerThread> clients = Collections.synchronizedList(new ArrayList<>());
+    ;
+    int[] ports = {13370, 13371};
+    //one Thread per Port
 
-            Thread thread = new Thread(new ServerDistributor(ports,clients, parsedConfig));
-            thread.start();
+    ServerDistributor thread = new ServerDistributor(ports, clients, parsedConfig);
+    thread.start();
 
-        System.out.println("server starts");
-    }
+    System.out.println("server starts");
+  }
 
 }
