@@ -18,6 +18,7 @@ public class ServerDistributor extends Thread {
 
   private List<ServerThread> clients;
 
+
   private List<ServerThread> organisations;
 
 
@@ -97,6 +98,9 @@ public class ServerDistributor extends Thread {
 
   public synchronized int getClientSize() {
     return this.clients.size();
+  }
+  public synchronized int getOrganisationsSize() {
+    return this.organisations.size();
   }
 
   public synchronized String retrieve(String lastName, String firstName) {

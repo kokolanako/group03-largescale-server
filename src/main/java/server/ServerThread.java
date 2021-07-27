@@ -129,7 +129,7 @@ public class ServerThread extends Thread {
                     answer.setMessageText("Client " + this.firstName + " " + lastName + " is not registered due to missing publicKey.");
                     return answer;
                 }
-                boolean isOrganisation = msg.getFirstName() == null;
+                boolean isOrganisation = msg.getFirstName() == null && msg.getLastName() != null;
                 boolean orgaAlreadyExists = this.distributor.orgaAlreadyExists(this.ID);
                 if (isOrganisation) {
                     if (orgaAlreadyExists) {
@@ -139,7 +139,7 @@ public class ServerThread extends Thread {
                         return answer;
                     }
                     this.distributor.registerOrganisation(this);
-                    System.out.println("REGISTERED" + msg.getId() + " size " + this.distributor.getClientSize());
+                    System.out.println("REGISTERED organization "+msg.getLastName() + msg.getId() + " size " + this.distributor.getOrganisationsSize());
                     answer.setMessage_ID(msg.getMessage_ID());
                     answer.setTYPE("OK");
                     answer.setMessageText("Client of type organisation" + lastName + " is registered.");
