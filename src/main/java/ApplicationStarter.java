@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class ApplicationStarter {
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args)  {
 
     Config parsedConfig = ConfigParser.parse("orgs.json");
     System.out.println(parsedConfig);
