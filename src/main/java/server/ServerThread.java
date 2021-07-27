@@ -139,7 +139,7 @@ public class ServerThread extends Thread {
                         return answer;
                     }
                     this.distributor.registerOrganisation(this);
-                    System.out.println("REGISTERED organization "+msg.getLastName() + msg.getId() + " size " + this.distributor.getOrganisationsSize());
+                    System.out.println("REGISTERED organization "+msg.getLastName() +" "+ msg.getId() + " size " + this.distributor.getOrganisationsSize());
                     answer.setMessage_ID(msg.getMessage_ID());
                     answer.setTYPE("OK");
                     answer.setMessageText("Client of type organisation" + lastName + " is registered.");
@@ -147,7 +147,7 @@ public class ServerThread extends Thread {
                 } else {
 
                     this.distributor.register(this);
-                    System.out.println("REGISTERED" + msg.getId() + " size " + this.distributor.getClientSize());
+                    System.out.println("REGISTERED person " + msg.getId() + " size " + this.distributor.getClientSize());
                     answer.setMessage_ID(msg.getMessage_ID());
                     answer.setTYPE("OK");
                     answer.setMessageText("Client " + this.firstName + " " + lastName + " registered");
@@ -236,6 +236,12 @@ public class ServerThread extends Thread {
             answer.setMessage_ID(msg.getMessage_ID());
             answer.setTYPE("CLOSE_CONNECTION");
             answer.setMessageText("Close and deregister Client from server");
+          boolean isOrganisation = this.firstName == null && lastName != null;
+          if (isOrganisation){
+            this.distributor.deregisterOrganisation(this.getID());
+          }else{
+            this.distributor.deregister(this.getID());
+          }
             return answer;
         }
         return null;
