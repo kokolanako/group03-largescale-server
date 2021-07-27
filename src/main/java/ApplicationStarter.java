@@ -14,11 +14,7 @@ public class ApplicationStarter {
 
     Config parsedConfig = ConfigParser.parse("orgs.json");
     System.out.println(parsedConfig);
-    //every client is listened in an individual thread
-    ;
     int[] ports = {13370, 13371};
-    //one Thread per Port
-
     ServerDistributor thread = new ServerDistributor(ports, parsedConfig);
     thread.start();
 
