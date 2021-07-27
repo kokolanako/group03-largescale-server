@@ -286,7 +286,7 @@ public class ServerDistributor extends Thread {
     return false;
   }
 
-  public synchronized Message transactionMessage(Message msg) {
+  public synchronized Message transactionMessageToOrganisation(Message msg) {
 
     for (ServerThread bank : this.organisations) {
       if (bank.getID().equals(msg.getId())) {
@@ -327,7 +327,7 @@ public class ServerDistributor extends Thread {
    * @param msg
    * @return
    */
-  public synchronized Message transactionMessageAnswer(Message msg) {
+  public synchronized Message transactionMessageAnswerToClient(Message msg) {
     for (ServerThread client : this.clients) {
       if (client.getID().equals(msg.getIdReceiver())) {
         client.sendMessage(msg);

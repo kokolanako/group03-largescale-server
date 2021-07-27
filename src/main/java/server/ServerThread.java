@@ -219,19 +219,27 @@ public class ServerThread extends Thread {
             }
 
         } else if (msg.getTYPE().equals("MESSAGE_BUSINESS")) {
-            return this.distributor.sendBusinessMessage(msg);
+            Message answerBusiness= this.distributor.sendBusinessMessage(msg);
+            if(answerBusiness ==null){
+              answer.setMessage_ID(msg.getMessage_ID());
+              answer.setTYPE("ERROR");
+              answer.setMessageText("You have no right to send business message due to no role.");
+              return answer;
+            }else{
+              return answerBusiness;
+            }
         } else if (msg.getTYPE().equals("TRANSACTION_SUB")) {
-            return this.distributor.transactionMessage(msg);
+            return this.distributor.transactionMessageToOrganisation(msg);
         } else if (msg.getTYPE().equals("TRANSACTION_ADD")) {
-            return this.distributor.transactionMessage(msg);
+            return this.distributor.transactionMessageToOrganisation(msg);
         } else if (msg.getTYPE().equals("TRANSACTION_SUB_OK")) {
-            return this.distributor.transactionMessageAnswer(msg);
+            return this.distributor.transactionMessageAnswerToClient(msg);
         } else if (msg.getTYPE().equals("TRANSACTION_ADD_OK")) {
-            return this.distributor.transactionMessageAnswer(msg);
+            return this.distributor.transactionMessageAnswerToClient(msg);
         } else if (msg.getTYPE().equals("TRANSACTION_SUB_ERROR")) {
-            return this.distributor.transactionMessageAnswer(msg);
+            return this.distributor.transactionMessageAnswerToClient(msg);
         } else if (msg.getTYPE().equals("TRANSACTION_ADD_ERROR")) {
-            return this.distributor.transactionMessageAnswer(msg);
+            return this.distributor.transactionMessageAnswerToClient(msg);
         } else if (msg.getTYPE().equals("CLOSE_CONNECTION")) {
             answer.setMessage_ID(msg.getMessage_ID());
             answer.setTYPE("CLOSE_CONNECTION");
