@@ -15,7 +15,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class ServerDistributor extends Thread {
 
     private int[] PORTS;
-    private List<ServerSocket> serverSockets = null;
 
     private List<ServerThread> clients;
 
@@ -29,16 +28,7 @@ public class ServerDistributor extends Thread {
         this.PORTS = ports;
         this.clients = clients;
         this.configuration = configuration;
-        this.serverSockets = new ArrayList<>(ports.length);
         this.organisations = Collections.synchronizedList(new ArrayList<>());
-        for (int port : this.PORTS) {
-            try {
-                this.serverSockets.add(new ServerSocket(port));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
 
     }
 
@@ -48,9 +38,15 @@ public class ServerDistributor extends Thread {
     }
 
     public void start() {
-        for (ServerSocket serverSocket : this.serverSockets) {
+        for (int port : this.PORTS) {
             Thread startAcceptionClients = new Thread(() -> {
-                while (true) {
+              ServerSocket serverSocket= null;
+              try {
+                serverSocket = new ServerSocket(port);
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+              while (true) {
                     Socket socket = null;
                     try {
                         socket = serverSocket.accept();
