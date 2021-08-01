@@ -238,7 +238,7 @@ public class ServerThread extends Thread {
         System.out.println("++++++++ " + answerBusiness);
         return answerBusiness;
       }
-    } else if (msg.getTYPE().equals("TRANSACTION_SUB")) {
+    } else if (msg.getTYPE().equals("TRANSACTION_SUB")) { // "SEND [5856e6cd-0da6-4573-9a04-cbb11f5e68d399] (BANK ID) SUB [DE0355667] (idan) [7]"//TODO how to check identity
       System.out.println("TRANSACTION " + msg);
       boolean transferred = this.distributor.transactionMessageToOrganisation(msg);
       if (!transferred) {
@@ -282,6 +282,7 @@ public class ServerThread extends Thread {
     if (publicKey == null) {
       return false;
     }
+    System.out.println("REGISTERED "+lastName+" "+id);
     this.ID = id;
     this.lastName = lastName;
     this.firstName = firstName;

@@ -296,7 +296,7 @@ public class ServerDistributor extends Thread {
       }
     }
     //TODO sub message ends up in here, whhyyy? idReceiiver is not sent?
-    System.out.println("No sent message to orga "+msg);
+    System.out.println("No sent message to orga "+msg.getIdReceiver());
     return false;
   }
 
