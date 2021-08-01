@@ -291,13 +291,17 @@ public class ServerDistributor extends Thread {
     for (ServerThread bank : this.organisations) {
       if (bank.getID().equals(msg.getIdReceiver())) {
         bank.sendMessage(msg);
+        System.out.println("Sent message to orga "+msg);
         return true;
       }
     }
-    return false; //must be null!!!!!! dont change!
+    //TODO sub message ends up in here, whhyyy? idReceiiver is not sent?
+    System.out.println("No sent message to orga "+msg);
+    return false;
   }
 
   public synchronized void registerOrganisation(ServerThread serverThread) {
+    System.out.println("Organisation is registered: "+serverThread.getLastName());
     this.organisations.add(serverThread);
   }
 

@@ -120,6 +120,7 @@ public class ServerThread extends Thread {
     if (msg.getTYPE().equals("REGISTER")) {
       boolean isOrganisation = (msg.getFirstName() == null || msg.getFirstName().isEmpty()) && msg.getLastName() != null;
       if (isOrganisation) { //register organisation
+        System.out.println("****ORGAAAAAAA "+msg);
         boolean orgaAlreadyExists = this.distributor.orgaAlreadyExists(this.ID);
         if (orgaAlreadyExists) {//register Organisation
           answer.setMessage_ID(msg.getMessage_ID());
